@@ -2,8 +2,7 @@
 import React from "react"
 import { Box } from "@chakra-ui/react"
 import { Routes, Route } from "react-router-dom"
-import LoginPage from "./pages/LoginPage.jsx"
-import SignupPage from "./pages/SignupPage.jsx"
+import { LoginPage, SignupPage } from "@/pages/Auth"
 
 export default function App() {
   return (
