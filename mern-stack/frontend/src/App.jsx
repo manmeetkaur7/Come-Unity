@@ -1,11 +1,17 @@
 // src/App.jsx
-import { Box, Heading, Button } from '@chakra-ui/react'
+import React from "react"
+import { Box } from "@chakra-ui/react"
+import { Routes, Route } from "react-router-dom"
+import LoginPage from "./pages/LoginPage.jsx"
 
 export default function App() {
   return (
-    <Box textAlign="center" p={10}>
-      <Heading mb={4}>Come-Unity Frontend is Working 🎉</Heading>
-      <Button colorScheme="teal">Test Button</Button>
+    <Box minH="100vh" bg="gray.50">
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        {/* add more routes as you build pages, e.g.: */}
+        {/* <Route path="/signup" element={<SignupPage />} /> */}
+      </Routes>
     </Box>
   )
 }

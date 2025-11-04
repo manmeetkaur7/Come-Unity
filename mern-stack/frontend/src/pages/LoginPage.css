@@ -1,0 +1,197 @@
+.login-page {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  min-height: 100vh;
+  background-color: #efe4d9;
+  font-family: "Raleway", Helvetica, sans-serif;
+  color: #1f1a18;
+}
+
+/* left side with logo + illustration */
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 3rem 4rem;
+  max-width: 540px;
+}
+
+.logo-clear {
+  width: 150px;
+  height: auto;
+}
+
+.login-left-copy {
+  margin: 3rem 0;
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: clamp(2.75rem, 4vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 1px;
+  text-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.people {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  align-self: center;
+}
+
+/* right side with form */
+.login-right {
+  flex: 1.2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.92) 30%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
+}
+
+.login-card {
+  width: 100%;
+  max-width: 560px;
+  min-height: 100vh;
+  padding: 4rem 4rem 4.5rem;
+  background-color: #ffffff;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-subtitle {
+  font-size: clamp(2.25rem, 3vw, 2.75rem);
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: #1f1a18;
+  text-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.field span {
+  font-size: 0.75rem;
+  letter-spacing: 0.22rem;
+}
+
+.field input {
+  width: 100%;
+  border: 1.5px solid rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  padding: 0.9rem 1.1rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: #1f1a18;
+  box-shadow: 0 0 0 4px rgba(31, 26, 24, 0.1);
+}
+
+.create-account {
+  align-self: flex-start;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  color: #1f1a18;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.2rem;
+  margin-top: -0.25rem;
+}
+
+.create-account:hover {
+  color: #3b2f2a;
+}
+
+/* button */
+.sign-in-button {
+  width: 100%;
+  background-color: #060301;
+  color: #fefbfa;
+  border: none;
+  border-radius: 26px;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  box-shadow: 0 20px 28px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.sign-in-button:hover {
+  background-color: #1a1410;
+  transform: translateY(-1px);
+}
+
+.sign-in-button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 1024px) {
+  .login-page {
+    flex-direction: column;
+    background-color: #ffffff;
+  }
+
+  .login-left,
+  .login-right {
+    flex: unset;
+    max-width: none;
+    padding: 2.5rem;
+  }
+
+  .login-left {
+    align-items: center;
+    text-align: center;
+  }
+
+  .login-left-copy {
+    margin: 2rem 0;
+  }
+
+  .login-card {
+    border-radius: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-card {
+    padding: 2.5rem 1.75rem 3rem;
+    min-height: auto;
+  }
+
+  .field span {
+    letter-spacing: 0.1rem;
+  }
+}
