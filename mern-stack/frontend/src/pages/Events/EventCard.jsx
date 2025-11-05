@@ -1,8 +1,13 @@
 // src/pages/Events/EventCard.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import "./events.css";
 
-export default function EventCard({ event, showFavorite = false }) {
+export default function EventCard({
+  event,
+  showFavorite = false,
+  onToggleFavorite,
+}) {
   const {
     title,
     category,
@@ -10,11 +15,25 @@ export default function EventCard({ event, showFavorite = false }) {
     description,
     slotsAvailable = 0,
     slotsTotal = 0,
+    isSaved = false,
   } = event;
 
   const availableText = `${slotsAvailable}/${slotsTotal}`;
   const categoryLabel = category ?? "General";
   const categorySlug = categoryLabel.toLowerCase().replace(/\s+/g, "-");
+  const [saved, setSaved] = useState(Boolean(isSaved));
+
+  useEffect(() => {
+    setSaved(Boolean(isSaved));
+  }, [isSaved]);
+
+  const handleToggleFavorite = () => {
+    const nextValue = !saved;
+    setSaved(nextValue);
+    if (onToggleFavorite) {
+      onToggleFavorite(event.id, nextValue);
+    }
+  };
 
   return (
     <article className="event-card">
@@ -33,10 +52,17 @@ export default function EventCard({ event, showFavorite = false }) {
         {showFavorite && (
           <button
             type="button"
-            className="event-favorite"
-            aria-label={`Save ${title}`}
+            className={`event-favorite ${
+              saved ? "event-favorite--active" : ""
+            }`}
+            onClick={handleToggleFavorite}
+            aria-label={
+              saved ? `Remove ${title} from saved events` : `Save ${title}`
+            }
+            aria-pressed={saved}
+            title={saved ? "Saved to your events" : "Save this event"}
           >
-            ♥
+            {saved ? <FaHeart /> : <FaRegHeart />}
           </button>
         )}
       </div>
