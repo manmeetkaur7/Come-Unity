@@ -1,5 +1,6 @@
 // src/pages/Events/EventsPage.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 import EventCard from "./EventCard";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
@@ -255,9 +256,9 @@ export default function EventsPage({ user }) {
       </div>
 
       {config.showCreateButton && (
-        <button type="button" className="events-floating-cta">
+        <Link to="/events/create" className="events-floating-cta">
           {config.createButtonLabel ?? "Create Event"}
-        </button>
+        </Link>
       )}
     </LayoutComponent>
   );

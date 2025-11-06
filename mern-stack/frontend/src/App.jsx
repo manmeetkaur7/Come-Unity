@@ -4,6 +4,7 @@ import { Box } from "@chakra-ui/react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage, SignupPage } from "@/pages/Auth";
 import EventsPage from "@/pages/Events/EventsPage";
+import CreateEventPage from "@/pages/Events/CreateEventPage";
 
 const useAuthUser = () => {
   const raw = localStorage.getItem("user"); // e.g. {"role":"volunteer"}
@@ -25,6 +26,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <EventsPage user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/create"
+          element={
+            <ProtectedRoute>
+              <CreateEventPage user={user} />
             </ProtectedRoute>
           }
         />
