@@ -1,9 +1,14 @@
+*,
+*::before,
+*::after {box-sizing: border-box;}
+html, body{height: 100%; margin :0;}
 .signup-page {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: stretch;
-  min-height: 100vh;
+  align-items: center;
+  height: 100dvh;
+  overflow: hidden;
   background-color: #efe4d9;
   font-family: "Raleway", Helvetica, sans-serif;
   color: #1f1a18;
@@ -13,33 +18,40 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 3rem 4rem;
+  align-items: center;
+  justify-items: flex-start;
+  gap: 1;
+  padding: 2.5rem 3rem;
   max-width: 540px;
 }
 
 .signup-logo {
+  position: fixed;
+  top: -11px;              
+  left: -24px;
+  transform: none;       
   width: 150px;
   height: auto;
+  z-index: 10;
 }
 
 .signup-left-copy {
-  margin: 2.5rem 0;
+  margin: 6rem 0 0rem;
+  text-align: center;
+  max-width: 480px;
 }
 
 .signup-heading {
   margin: 0;
-  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-size: clamp(2.75rem, 4vw, 3.75rem);
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: 0.8px;
+  line-height: 1.06;
+  letter-spacing: 1px;
   text-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
 }
 
 .signup-heading span {
+  display: block;
   font-size: clamp(2.2rem, 3.6vw, 3rem);
   font-weight: 700;
 }
@@ -49,6 +61,8 @@
   max-width: 420px;
   height: auto;
   align-self: center;
+  margin-top: -3.1rem;
+  position: static;
 }
 
 .signup-right {
@@ -63,19 +77,22 @@
     rgba(255, 255, 255, 0.92) 30%,
     rgba(255, 255, 255, 0.85) 100%
   );
+  height: 100%;
 }
 
 .signup-card {
   width: 100%;
   max-width: 620px;
-  min-height: 100vh;
+  max-height: 95vh;
+  overflow: hidden;
   padding: 4rem 4.5rem 4.75rem;
   background-color: #ffffff;
   box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2rem;
+  gap: 1.25rem;
+  border-radius: 40px;
 }
 
 .signup-title {
@@ -83,7 +100,7 @@
   font-weight: 700;
   color: #1f1a18;
   text-align: center;
-  margin: 0;
+  margin-bottom: 0rem;
   text-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
@@ -146,9 +163,9 @@
 }
 
 .signup-radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .signup-option {
@@ -223,6 +240,7 @@
 }
 
 @media (max-width: 1024px) {
+    body{overflow-y: hidden;}
   .signup-page {
     flex-direction: column;
     background-color: #ffffff;
@@ -230,6 +248,7 @@
 
   .signup-left,
   .signup-right {
+    height: 100dvh;
     flex: unset;
     max-width: none;
     padding: 2.5rem;
