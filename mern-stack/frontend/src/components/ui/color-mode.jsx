@@ -1,33 +1,17 @@
 'use client'
 
 import { ClientOnly, IconButton, Skeleton, Span } from '@chakra-ui/react'
-import { ThemeProvider, useTheme } from 'next-themes'
+import { ThemeProvider } from 'next-themes'
 
 import * as React from 'react'
 import { LuMoon, LuSun } from 'react-icons/lu'
+
+import { useColorMode } from './color-mode-hooks'
 
 export function ColorModeProvider(props) {
   return (
     <ThemeProvider attribute='class' disableTransitionOnChange {...props} />
   )
-}
-
-export function useColorMode() {
-  const { resolvedTheme, setTheme, forcedTheme } = useTheme()
-  const colorMode = forcedTheme || resolvedTheme
-  const toggleColorMode = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-  }
-  return {
-    colorMode: colorMode,
-    setColorMode: setTheme,
-    toggleColorMode,
-  }
-}
-
-export function useColorModeValue(light, dark) {
-  const { colorMode } = useColorMode()
-  return colorMode === 'dark' ? dark : light
 }
 
 export function ColorModeIcon() {
