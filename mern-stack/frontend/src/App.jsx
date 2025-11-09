@@ -6,6 +6,7 @@ import { LoginPage, SignupPage } from "@/pages/Auth";
 import EventsPage from "@/pages/Events/EventsPage";
 import CreateEventPage from "@/pages/Events/CreateEventPage";
 import AdminDashboard from "@/pages/Admin/AdminDashboard";
+import EventDetails from "@/pages/Events/EventDetails";
 
 const useAuthUser = () => {
   const raw = localStorage.getItem("user"); // e.g. {"role":"volunteer"}
@@ -35,6 +36,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CreateEventPage user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/:id"
+          element={
+            <ProtectedRoute>
+              <EventDetails user={user} />
             </ProtectedRoute>
           }
         />

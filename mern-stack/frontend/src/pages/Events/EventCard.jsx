@@ -78,9 +78,9 @@ export default function EventCard({
           <span className="slots-label">Slots Available</span>
           <span className="slots-numbers">{availableText}</span>
         </div>
-        <button type="button" className="more-details">
+        <a className="more-details" href={`/events/evt-101`}>
           More Details
-        </button>
+        </a>
       </div>
     </article>
   );
