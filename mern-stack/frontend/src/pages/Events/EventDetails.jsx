@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
@@ -11,6 +11,7 @@ import reactIcon from "@/assets/react.svg";
 import locationIcon from "@/assets/location icon 1.png";
 import "./event-details.css";
 import selfCareImage from "@/assets/self care image 1.png";
+import { FaBookmark, FaClock, FaRegBookmark, FaUserCheck } from "react-icons/fa";
 
 const mockEvent = {
   id: "evt-101",
@@ -66,6 +67,32 @@ const navConfig = {
   ],
 };
 
+const parseTimeToMinutes = (timeString) => {
+  if (!timeString) {
+    return null;
+  }
+  const [timePart, period] = timeString.split(" ");
+  if (!timePart || !period) {
+    return null;
+  }
+  const [hourStr, minuteStr] = timePart.split(":");
+  if (!hourStr || !minuteStr) {
+    return null;
+  }
+  let hours = Number(hourStr);
+  const minutes = Number(minuteStr);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return null;
+  }
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  }
+  if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+  return hours * 60 + minutes;
+};
+
 export default function EventDetails({ user }) {
   const role = user?.role ?? "volunteer";
   const Layout = layoutMap[role] ?? VolunteerLayout;
@@ -76,6 +103,52 @@ export default function EventDetails({ user }) {
   const [saved, setSaved] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [adminStatus, setAdminStatus] = useState(mockEvent.status);
+  const [selectedHours, setSelectedHours] = useState("");
+
+  const durationInfo = useMemo(() => {
+    const start = parseTimeToMinutes(event?.startTime);
+    const end = parseTimeToMinutes(event?.endTime);
+    if (start === null || end === null || end <= start) {
+      return { durationMinutes: 60, hours: 1 };
+    }
+    const minutes = end - start;
+    const wholeHours = Math.max(1, Math.floor(minutes / 60));
+    return { durationMinutes: minutes, hours: wholeHours };
+  }, [event?.startTime, event?.endTime]);
+
+  useEffect(() => {
+    setSelectedHours("");
+  }, [durationInfo.hours]);
+
+  const volunteerHourOptions = useMemo(
+    () => Array.from({ length: durationInfo.hours }, (_, index) => index + 1),
+    [durationInfo.hours]
+  );
+
+  const selectedHoursCount = Number(selectedHours) || 0;
+  const selectedHoursText =
+    selectedHoursCount > 0
+      ? `${selectedHoursCount} ${selectedHoursCount === 1 ? "hour" : "hours"}`
+      : null;
+  const availableHoursText = `${durationInfo.hours} ${
+    durationInfo.hours === 1 ? "hour" : "hours"
+  }`;
+  const disableSignupCta = !selectedHoursCount && !signedUp;
+
+  const volunteerHelperText = selectedHoursText
+    ? `We'll log ${selectedHoursText} for this event.`
+    : `You can commit up to ${availableHoursText}.`;
+
+  const handleHoursChange = (event) => {
+    setSelectedHours(event.target.value);
+  };
+
+  const handleSignupToggle = () => {
+    if (!signedUp && !selectedHoursCount) {
+      return;
+    }
+    setSignedUp((value) => !value);
+  };
 
   const notFound = !loading && !event;
 
@@ -123,24 +196,91 @@ export default function EventDetails({ user }) {
 
   const volunteerActions =
     role === "volunteer" ? (
-      <div className="event-details__actions">
-        <button
-          type="button"
-          className={`event-details__cta${
-            signedUp ? " event-details__cta--secondary" : ""
-          }`}
-          onClick={() => setSignedUp((value) => !value)}
-        >
-          {signedUp ? "Unsign" : "Sign Up"}
-        </button>
-        <button
-          type="button"
-          className="event-details__ghost"
-          onClick={() => setSaved((value) => !value)}
-        >
-          {saved ? "Unsave" : "Save for later"}
-        </button>
-      </div>
+      <section
+        className="event-details__volunteer-panel"
+        aria-labelledby="volunteer-actions-heading"
+      >
+        <header className="event-details__volunteer-header">
+          <div>
+            <p className="event-details__eyebrow event-details__eyebrow--muted">
+              Volunteer actions
+            </p>
+            <h3 id="volunteer-actions-heading">
+              {signedUp ? "You're on the schedule" : "Secure your volunteer spot"}
+            </h3>
+            <p className="event-details__volunteer-subcopy">
+              {signedUp
+                ? selectedHoursText
+                  ? `Thanks for committing ${selectedHoursText}. Adjust your hours anytime.`
+                  : "Thanks for signing up! Update your hours anytime."
+                : "Pick how long you can help and lock in your RSVP."}
+            </p>
+          </div>
+          <span
+            className={`event-details__pill${
+              signedUp ? " event-details__pill--success" : ""
+            }`}
+          >
+            {signedUp ? <FaUserCheck aria-hidden="true" /> : <FaClock aria-hidden="true" />}
+            {signedUp && selectedHoursText
+              ? selectedHoursText
+              : `Up to ${availableHoursText}`}
+          </span>
+        </header>
+
+        <div className="event-details__volunteer-grid">
+          <label className="event-details__field">
+            <span>Hours you're contributing</span>
+            <div className="event-details__select-wrapper">
+              <FaClock aria-hidden="true" />
+              <select value={selectedHours} onChange={handleHoursChange}>
+                <option value="">Select</option>
+                {volunteerHourOptions.map((hour) => (
+                  <option key={hour} value={String(hour)}>
+                    {hour} {hour === 1 ? "hour" : "hours"}
+                  </option>
+                ))}
+              </select>
+              <span aria-hidden="true" className="event-details__select-caret">
+                ▾
+              </span>
+            </div>
+            <small>{volunteerHelperText}</small>
+          </label>
+
+          <div className="event-details__button-stack">
+            <button
+              type="button"
+              className={`event-details__cta event-details__cta--full${
+                signedUp ? " event-details__cta--secondary" : ""
+              }`}
+              disabled={disableSignupCta}
+              onClick={handleSignupToggle}
+            >
+              {signedUp ? "Cancel RSVP" : "Sign up"}
+            </button>
+            <button
+              type="button"
+              className={`event-details__ghost event-details__ghost--full${
+                saved ? " event-details__ghost--active" : ""
+              }`}
+              onClick={() => setSaved((value) => !value)}
+            >
+              {saved ? (
+                <>
+                  <FaBookmark aria-hidden="true" />
+                  <span>Saved to your list</span>
+                </>
+              ) : (
+                <>
+                  <FaRegBookmark aria-hidden="true" />
+                  <span>Save for later</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </section>
     ) : null;
 
   const adminActions =

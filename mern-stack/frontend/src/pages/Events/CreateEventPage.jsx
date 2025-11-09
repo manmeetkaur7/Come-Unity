@@ -38,6 +38,20 @@ const hourOptions = Array.from({ length: 12 }, (_, index) =>
 const minuteOptions = Array.from({ length: 12 }, (_, index) =>
   String(index * 5).padStart(2, "0")
 );
+
+const toMinutes = (hour, minute, period) => {
+  if (!hour || !minute || !period) {
+    return null;
+  }
+  let normalizedHour = Number(hour);
+  if (period === "PM" && normalizedHour !== 12) {
+    normalizedHour += 12;
+  }
+  if (period === "AM" && normalizedHour === 12) {
+    normalizedHour = 0;
+  }
+  return normalizedHour * 60 + Number(minute);
+};
 const now = new Date();
 const currentYear = now.getFullYear();
 const defaultCalendarView = {
@@ -91,9 +105,12 @@ const defaultFormState = {
   description: "",
   eventDate: "",
   eventYear: String(currentYear),
-  timeHour: "",
-  timeMinute: "",
-  timePeriod: "",
+  startHour: "",
+  startMinute: "",
+  startPeriod: "",
+  endHour: "",
+  endMinute: "",
+  endPeriod: "",
   address: "",
   volunteersNeeded: "",
   category: categoryOptions[0],
@@ -153,13 +170,16 @@ export default function CreateEventPage({ user, onSubmit }) {
     );
   }, [formData.eventDate]);
 
-  const displayEventTime =
-    formData.timeHour && formData.timeMinute && formData.timePeriod
-      ? `${formData.timeHour}:${formData.timeMinute} ${formData.timePeriod}`
-      : "";
-
   const previewEvent = useMemo(() => {
     const volunteers = Number(formData.volunteersNeeded) || 0;
+    const startTime =
+      formData.startHour && formData.startMinute && formData.startPeriod
+        ? `${formData.startHour}:${formData.startMinute} ${formData.startPeriod}`
+        : "";
+    const endTime =
+      formData.endHour && formData.endMinute && formData.endPeriod
+        ? `${formData.endHour}:${formData.endMinute} ${formData.endPeriod}`
+        : "";
     return {
       id: "preview",
       title: formData.name || "Event name goes here",
@@ -170,12 +190,20 @@ export default function CreateEventPage({ user, onSubmit }) {
       imageUrl: imagePreview || "",
       slotsAvailable: volunteers,
       slotsTotal: volunteers || 100,
+      startTime,
+      endTime,
     };
   }, [
     formData.category,
     formData.description,
     formData.name,
     formData.volunteersNeeded,
+    formData.startHour,
+    formData.startMinute,
+    formData.startPeriod,
+    formData.endHour,
+    formData.endMinute,
+    formData.endPeriod,
     imagePreview,
   ]);
 
@@ -320,21 +348,45 @@ export default function CreateEventPage({ user, onSubmit }) {
       return;
     }
 
-    if (!formData.timeHour || !formData.timeMinute || !formData.timePeriod) {
-      setSubmissionState({
-        status: "error",
-        message: "Choose the start time hour, minutes, and AM/PM.",
-      });
-      return;
-    }
+  if (
+    !formData.startHour ||
+    !formData.startMinute ||
+    !formData.startPeriod ||
+    !formData.endHour ||
+    !formData.endMinute ||
+    !formData.endPeriod
+  ) {
+    setSubmissionState({
+      status: "error",
+      message: "Choose both start and end times.",
+    });
+    return;
+  }
 
-    const formattedEventTime = `${formData.timeHour}:${formData.timeMinute} ${formData.timePeriod}`;
+  const startMinutes = toMinutes(
+    formData.startHour,
+    formData.startMinute,
+    formData.startPeriod
+  );
+  const endMinutes = toMinutes(
+    formData.endHour,
+    formData.endMinute,
+    formData.endPeriod
+  );
+
+  if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes) {
+    setSubmissionState({
+      status: "error",
+      message: "End time must be after the start time.",
+    });
+    return;
+  }
+
     const payload = {
       ...formData,
       name: trimmedName,
       description: trimmedDescription,
       address: trimmedAddress,
-      eventTime: formattedEventTime,
     };
 
     if (typeof onSubmit === "function") {
@@ -517,10 +569,10 @@ export default function CreateEventPage({ user, onSubmit }) {
 
               <div className="create-event-time">
                 <label>
-                  Hour
+                  Start hour
                   <select
-                    name="timeHour"
-                    value={formData.timeHour}
+                    name="startHour"
+                    value={formData.startHour}
                     onChange={handleFieldChange}
                     required
                   >
@@ -533,10 +585,10 @@ export default function CreateEventPage({ user, onSubmit }) {
                   </select>
                 </label>
                 <label>
-                  Minutes
+                  Start minutes
                   <select
-                    name="timeMinute"
-                    value={formData.timeMinute}
+                    name="startMinute"
+                    value={formData.startMinute}
                     onChange={handleFieldChange}
                     required
                   >
@@ -551,8 +603,56 @@ export default function CreateEventPage({ user, onSubmit }) {
                 <label>
                   AM / PM
                   <select
-                    name="timePeriod"
-                    value={formData.timePeriod}
+                    name="startPeriod"
+                    value={formData.startPeriod}
+                    onChange={handleFieldChange}
+                    required
+                  >
+                    <option value="">Select</option>
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="create-event-time">
+                <label>
+                  End hour
+                  <select
+                    name="endHour"
+                    value={formData.endHour}
+                    onChange={handleFieldChange}
+                    required
+                  >
+                    <option value="">Select</option>
+                    {hourOptions.map((hour) => (
+                      <option key={hour} value={hour}>
+                        {hour}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  End minutes
+                  <select
+                    name="endMinute"
+                    value={formData.endMinute}
+                    onChange={handleFieldChange}
+                    required
+                  >
+                    <option value="">Select</option>
+                    {minuteOptions.map((minute) => (
+                      <option key={minute} value={minute}>
+                        {minute}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  AM / PM
+                  <select
+                    name="endPeriod"
+                    value={formData.endPeriod}
                     onChange={handleFieldChange}
                     required
                   >
@@ -644,7 +744,11 @@ export default function CreateEventPage({ user, onSubmit }) {
                     })
                   : "Pick a date"}
               </span>
-              {displayEventTime && <span>{displayEventTime}</span>}
+              {previewEvent.startTime && previewEvent.endTime && (
+                <span>
+                  {previewEvent.startTime} – {previewEvent.endTime}
+                </span>
+              )}
             </div>
           </div>
 

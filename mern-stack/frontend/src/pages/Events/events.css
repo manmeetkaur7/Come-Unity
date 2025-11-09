@@ -329,15 +329,28 @@
 .more-details {
   background: linear-gradient(180deg, #f0f1f5 0%, #d7dae0 100%);
   border: 1px solid #2e2f35;
-  border-radius: 10px;
-  font-weight: 700;
-  padding: 0.55rem 1.5rem;
+  border-radius: 999px;
+  padding: 0.55rem 1.35rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.more-details::after {
+  content: "→";
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .more-details:hover {
   transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .events-floating-cta {
