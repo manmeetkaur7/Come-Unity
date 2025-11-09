@@ -65,7 +65,12 @@ const navConfig = {
   organizer: [
     { label: "Events", href: "/events", icon: calendarIcon, iconAlt: "Events" },
     { label: "Create Event", href: "/events/create", icon: addEventIcon, iconAlt: "Create" },
-    { label: "Dashboard", href: "/dashboard", icon: dashboardIcon, iconAlt: "Dashboard" },
+    {
+      label: "Dashboard",
+      href: "/dashboard/organizer",
+      icon: dashboardIcon,
+      iconAlt: "Dashboard",
+    },
   ],
   admin: [
     { label: "Events", href: "/events", icon: calendarIcon, iconAlt: "Events" },

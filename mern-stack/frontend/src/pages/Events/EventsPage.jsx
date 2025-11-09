@@ -72,7 +72,7 @@ const roleConfig = {
       },
       {
         label: "Dashboard",
-        href: "/dashboard",
+        href: "/dashboard/organizer",
         icon: dashboardIcon,
         iconAlt: "Dashboard icon",
       },

@@ -25,7 +25,7 @@ const organizerNavLinks = [
   },
   {
     label: "Dashboard",
-    href: "/dashboard",
+    href: "/dashboard/organizer",
     icon: dashboardIcon,
     iconAlt: "Organizer dashboard",
   },

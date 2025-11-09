@@ -8,6 +8,7 @@ import CreateEventPage from "@/pages/Events/CreateEventPage";
 import EventDetails from "@/pages/Events/EventDetails";
 import AdminDashboard from "@/pages/Admin/AdminDashboard";
 import VolunteerDashboard from "@/pages/Volunteer/VolunteerDashboard";
+import OrganizerDashboard from "@/pages/Organizer/OrganizerDashboard";
 
 const useAuthUser = () => {
   const raw = localStorage.getItem("user"); // e.g. {"role":"volunteer"}
@@ -53,6 +54,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <VolunteerDashboard user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/organizer"
+          element={
+            <ProtectedRoute>
+              <OrganizerDashboard user={user} />
             </ProtectedRoute>
           }
         />
