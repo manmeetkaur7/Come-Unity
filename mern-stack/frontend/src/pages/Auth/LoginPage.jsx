@@ -1,4 +1,5 @@
 import React from "react"
+import "./auth-layout.css"
 import "./LoginPage.css"
 import "./styleguide.css"
 import logoClear from "@/assets/Logo (clear).png"
@@ -12,35 +13,35 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="login-page">
-      <div className="login-left">
-        <img className="logo-clear" alt="Come-Unity logo" src={logoClear} />
-        <div className="login-left-copy">
-          <h1 className="welcome-title">Welcome To Come-Unity</h1>
+    <main className="auth-page auth-page--login">
+      <div className="auth-visual">
+        <img className="auth-logo" alt="Come-Unity logo" src={logoClear} />
+        <div className="auth-visual__copy">
+          <h1 className="auth-visual__headline">Welcome To Come-Unity</h1>
         </div>
-        <img className="people" alt="People illustration" src={people} />
+        <img className="auth-visual__image" alt="People illustration" src={people} />
       </div>
 
-      <div className="login-right">
-        <div className="login-card">
-          <h2 className="login-subtitle">Sign In</h2>
+      <div className="auth-panel">
+        <div className="auth-panel__card">
+          <h2 className="auth-panel__title">Sign In</h2>
 
-          <form className="login-form" onSubmit={handleSubmit}>
-            <label className="field">
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <label className="auth-field">
               <span>EMAIL</span>
               <input type="email" placeholder="Enter your email" required />
             </label>
 
-            <label className="field">
+            <label className="auth-field">
               <span>PASSWORD</span>
               <input type="password" placeholder="Enter your password" required />
             </label>
 
-            <a className="create-account" href="/signup">
+            <a className="auth-link" href="/signup">
               Create an account
             </a>
 
-            <button type="submit" className="sign-in-button">
+            <button type="submit" className="auth-button">
               Sign in
             </button>
           </form>
