@@ -40,7 +40,7 @@ const roleConfig = {
       },
       {
         label: "Dashboard",
-        href: "/dashboard",
+        href: "/dashboard/volunteer",
         icon: dashboardIcon,
         iconAlt: "Dashboard icon",
       },

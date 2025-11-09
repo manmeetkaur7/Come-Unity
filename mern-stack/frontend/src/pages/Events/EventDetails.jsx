@@ -55,7 +55,12 @@ const navConfig = {
       icon: favoriteIcon,
       iconAlt: "Saved",
     },
-    { label: "Dashboard", href: "/dashboard", icon: dashboardIcon, iconAlt: "Dashboard" },
+    {
+      label: "Dashboard",
+      href: "/dashboard/volunteer",
+      icon: dashboardIcon,
+      iconAlt: "Dashboard",
+    },
   ],
   organizer: [
     { label: "Events", href: "/events", icon: calendarIcon, iconAlt: "Events" },

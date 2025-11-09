@@ -5,8 +5,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage, SignupPage } from "@/pages/Auth";
 import EventsPage from "@/pages/Events/EventsPage";
 import CreateEventPage from "@/pages/Events/CreateEventPage";
-import AdminDashboard from "@/pages/Admin/AdminDashboard";
 import EventDetails from "@/pages/Events/EventDetails";
+import AdminDashboard from "@/pages/Admin/AdminDashboard";
+import VolunteerDashboard from "@/pages/Volunteer/VolunteerDashboard";
 
 const useAuthUser = () => {
   const raw = localStorage.getItem("user"); // e.g. {"role":"volunteer"}
@@ -44,6 +45,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <EventDetails user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/volunteer"
+          element={
+            <ProtectedRoute>
+              <VolunteerDashboard user={user} />
             </ProtectedRoute>
           }
         />
