@@ -98,7 +98,7 @@ const roleConfig = {
       },
       {
         label: "Dashboard",
-        href: "/dashboard",
+        href: "/dashboard/admin",
         icon: reactIcon,
         iconAlt: "Dashboard icon",
       },
