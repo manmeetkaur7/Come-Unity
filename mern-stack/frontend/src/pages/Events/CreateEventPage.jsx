@@ -5,7 +5,8 @@ import EventCard from "./EventCard";
 import logoClear from "@/assets/Logo (clear).png";
 import profileBadge from "@/assets/6 1.png";
 import calendarIcon from "@/assets/Calender image.png";
-import reactIcon from "@/assets/react.svg";
+import addEventIcon from "@/assets/add-event.png";
+import dashboardIcon from "@/assets/dashboard.png";
 import "./create-event.css";
 
 const organizerNavLinks = [
@@ -19,13 +20,13 @@ const organizerNavLinks = [
     label: "Create Event",
     href: "/events/create",
     active: true,
-    icon: reactIcon,
+    icon: addEventIcon,
     iconAlt: "Create event",
   },
   {
     label: "Dashboard",
     href: "/dashboard",
-    icon: reactIcon,
+    icon: dashboardIcon,
     iconAlt: "Organizer dashboard",
   },
 ];

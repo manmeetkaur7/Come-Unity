@@ -7,7 +7,8 @@ import logoClear from "@/assets/Logo (clear).png";
 import profileBadge from "@/assets/6 1.png";
 import calendarIcon from "@/assets/Calender image.png";
 import favoriteIcon from "@/assets/Favorite.png";
-import reactIcon from "@/assets/react.svg";
+import addEventIcon from "@/assets/add-event.png";
+import dashboardIcon from "@/assets/dashboard.png";
 import locationIcon from "@/assets/location icon 1.png";
 import "./event-details.css";
 import selfCareImage from "@/assets/self care image 1.png";
@@ -54,16 +55,21 @@ const navConfig = {
       icon: favoriteIcon,
       iconAlt: "Saved",
     },
-    { label: "Dashboard", href: "/dashboard", icon: reactIcon, iconAlt: "Dashboard" },
+    { label: "Dashboard", href: "/dashboard", icon: dashboardIcon, iconAlt: "Dashboard" },
   ],
   organizer: [
     { label: "Events", href: "/events", icon: calendarIcon, iconAlt: "Events" },
-    { label: "Create Event", href: "/events/create", icon: reactIcon, iconAlt: "Create" },
-    { label: "Dashboard", href: "/dashboard", icon: reactIcon, iconAlt: "Dashboard" },
+    { label: "Create Event", href: "/events/create", icon: addEventIcon, iconAlt: "Create" },
+    { label: "Dashboard", href: "/dashboard", icon: dashboardIcon, iconAlt: "Dashboard" },
   ],
   admin: [
     { label: "Events", href: "/events", icon: calendarIcon, iconAlt: "Events" },
-    { label: "Dashboard", href: "/dashboard/admin", icon: reactIcon, iconAlt: "Dashboard" },
+    {
+      label: "Dashboard",
+      href: "/dashboard/admin",
+      icon: dashboardIcon,
+      iconAlt: "Dashboard",
+    },
   ],
 };
 

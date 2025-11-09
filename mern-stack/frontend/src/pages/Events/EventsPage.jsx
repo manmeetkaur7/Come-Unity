@@ -9,7 +9,8 @@ import logoClear from "@/assets/Logo (clear).png";
 import profileBadge from "@/assets/6 1.png";
 import calendarIcon from "@/assets/Calender image.png";
 import favoriteIcon from "@/assets/Favorite.png";
-import reactIcon from "@/assets/react.svg";
+import addEventIcon from "@/assets/add-event.png";
+import dashboardIcon from "@/assets/dashboard.png";
 import selfCareImage from "@/assets/self care image 1.png";
 import libraryImage from "@/assets/3 7.png";
 import museumImage from "@/assets/People.png";
@@ -40,7 +41,7 @@ const roleConfig = {
       {
         label: "Dashboard",
         href: "/dashboard",
-        icon: reactIcon,
+        icon: dashboardIcon,
         iconAlt: "Dashboard icon",
       },
     ],
@@ -66,13 +67,13 @@ const roleConfig = {
       {
         label: "Create Event",
         href: "/events/create",
-        icon: reactIcon,
+        icon: addEventIcon,
         iconAlt: "Create event icon",
       },
       {
         label: "Dashboard",
         href: "/dashboard",
-        icon: reactIcon,
+        icon: dashboardIcon,
         iconAlt: "Dashboard icon",
       },
     ],
@@ -99,7 +100,7 @@ const roleConfig = {
       {
         label: "Dashboard",
         href: "/dashboard/admin",
-        icon: reactIcon,
+        icon: dashboardIcon,
         iconAlt: "Dashboard icon",
       },
     ],

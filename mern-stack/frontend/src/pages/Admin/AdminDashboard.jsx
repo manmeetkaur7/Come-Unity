@@ -4,7 +4,7 @@ import AdminLayout from "@/pages/Events/layouts/AdminLayout";
 import logoClear from "@/assets/Logo (clear).png";
 import profileBadge from "@/assets/6 1.png";
 import calendarIcon from "@/assets/Calender image.png";
-import reactIcon from "@/assets/react.svg";
+import dashboardIcon from "@/assets/dashboard.png";
 import "./admin-dashboard.css";
 
 const mockPendingEvents = [
@@ -75,7 +75,7 @@ const navLinks = [
     label: "Dashboard",
     href: "/dashboard/admin",
     active: true,
-    icon: reactIcon,
+    icon: dashboardIcon,
     iconAlt: "Admin dashboard",
   },
 ];
