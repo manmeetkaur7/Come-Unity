@@ -6,6 +6,7 @@ import { LoginPage, SignupPage } from "@/pages/Auth";
 import EventsPage from "@/pages/Events/EventsPage";
 import CreateEventPage from "@/pages/Events/CreateEventPage";
 import EventDetails from "@/pages/Events/EventDetails";
+import SavedEventsPage from "@/pages/Events/SavedEventsPage";
 import AdminDashboard from "@/pages/Admin/AdminDashboard";
 import VolunteerDashboard from "@/pages/Volunteer/VolunteerDashboard";
 import OrganizerDashboard from "@/pages/Organizer/OrganizerDashboard";
@@ -38,6 +39,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CreateEventPage user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events/saved"
+          element={
+            <ProtectedRoute>
+              <SavedEventsPage user={user} />
             </ProtectedRoute>
           }
         />
