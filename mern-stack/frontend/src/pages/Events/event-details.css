@@ -63,6 +63,56 @@
   color: #1f1a18;
 }
 
+.event-details__organizer-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-end;
+}
+
+.event-details__organizer-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.event-details__ownership-pill {
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+  background: rgba(31, 26, 24, 0.08);
+  color: #2c241f;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+}
+
+.event-details__ownership-pill--muted {
+  background: rgba(0, 0, 0, 0.05);
+  color: #2c241f;
+}
+
+.event-details__action-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 1.2rem;
+  background: linear-gradient(120deg, #1f1a18, #3c332e);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.event-details__action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.25);
+}
+
+.event-details__action-btn--danger {
+  background: linear-gradient(120deg, #b71c1c, #e53935);
+  box-shadow: 0 12px 20px rgba(229, 57, 53, 0.35);
+}
+
 .event-details__status--pending {
   background: rgba(255, 193, 7, 0.1);
   color: #8f6b00;
@@ -212,6 +262,51 @@
 .event-details__highlight span {
   font-size: 0.9rem;
   color: rgba(0, 0, 0, 0.7);
+}
+
+.event-details__notice {
+  border-radius: 16px;
+  padding: 0.85rem 1.1rem;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.event-details__notice button {
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.event-details__modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 20;
+}
+
+.event-details__modal-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
+}
+
+.event-details__modal-actions {
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 .event-details__volunteer-panel {

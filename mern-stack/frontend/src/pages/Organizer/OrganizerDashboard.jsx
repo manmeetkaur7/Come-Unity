@@ -35,6 +35,7 @@ const mockOrganizerPayload = {
       location: "McKinley Park",
       volunteers: { signedUp: 26, total: 40 },
       status: "publishing",
+      owned: true,
     },
     {
       id: "evt-511",
@@ -44,6 +45,7 @@ const mockOrganizerPayload = {
       location: "Oak Ridge Elementary",
       volunteers: { signedUp: 18, total: 25 },
       status: "scheduled",
+      owned: true,
     },
     {
       id: "evt-489",
@@ -53,6 +55,7 @@ const mockOrganizerPayload = {
       location: "Franklin Blvd",
       volunteers: { signedUp: 32, total: 35 },
       status: "scheduled",
+      owned: false,
     },
     {
       id: "evt-472",
@@ -62,6 +65,7 @@ const mockOrganizerPayload = {
       location: "Seed Collective HQ",
       volunteers: { signedUp: 24, total: 24 },
       status: "completed",
+      owned: false,
     },
   ],
 };
@@ -85,6 +89,8 @@ const formatDate = (value) => {
 export default function OrganizerDashboard({ user }) {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({ metrics: null, events: [] });
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
 
   const navLinks = useMemo(
     () =>
@@ -108,6 +114,40 @@ export default function OrganizerDashboard({ user }) {
   if (user && !isOrganizer) {
     return <Navigate to="/events" replace />;
   }
+
+  const handleEditEvent = (targetEvent) => {
+    setToastMessage(`Edit flow coming soon for “${targetEvent.title}”.`);
+  };
+
+  const handleDeleteEventRequest = (targetEvent) => {
+    setPendingDelete(targetEvent);
+  };
+
+  const cancelDeleteRequest = () => setPendingDelete(null);
+
+  const confirmDeleteEvent = () => {
+    if (!pendingDelete) {
+      return;
+    }
+    setDashboardData((current) => ({
+      ...current,
+      events: current.events.filter((event) => event.id !== pendingDelete.id),
+      metrics: current.metrics
+        ? {
+            ...current.metrics,
+            upcomingEvents: Math.max(
+              0,
+              (current.metrics.upcomingEvents ?? 0) - (pendingDelete.status === "completed" ? 0 : 1)
+            ),
+            eventsCreated: Math.max(0, (current.metrics.eventsCreated ?? 0) - 1),
+          }
+        : current.metrics,
+    }));
+    setToastMessage(`“${pendingDelete.title}” removed from your dashboard.`);
+    setPendingDelete(null);
+  };
+
+  const dismissToast = () => setToastMessage("");
 
   const metrics = useMemo(() => {
     const base = dashboardData.metrics ?? {};
@@ -156,6 +196,15 @@ export default function OrganizerDashboard({ user }) {
             {loading ? "Checking events" : "All event data current"}
           </div>
         </header>
+
+        {toastMessage && (
+          <div className="organizer-dashboard__toast" role="status">
+            <span>{toastMessage}</span>
+            <button type="button" onClick={dismissToast} aria-label="Dismiss notification">
+              ×
+            </button>
+          </div>
+        )}
 
         <section className="organizer-dashboard__metrics" aria-live="polite">
           {metricCards.map((metric) => (
@@ -214,11 +263,20 @@ export default function OrganizerDashboard({ user }) {
                   <li key={event.id} className="organizer-dashboard__event">
                     <div className="organizer-dashboard__event-main">
                       <div>
-                        <span
-                          className={`organizer-dashboard__status-pill organizer-dashboard__status-pill--${event.status}`}
-                        >
-                          {statusCopy[event.status] ?? event.status}
-                        </span>
+                        <div className="organizer-dashboard__status-stack">
+                          <span
+                            className={`organizer-dashboard__status-pill organizer-dashboard__status-pill--${event.status}`}
+                          >
+                            {statusCopy[event.status] ?? event.status}
+                          </span>
+                          {event.owned ? (
+                            <span className="organizer-dashboard__ownership-pill">Your event</span>
+                          ) : (
+                            <span className="organizer-dashboard__ownership-pill organizer-dashboard__ownership-pill--muted">
+                              External event
+                            </span>
+                          )}
+                        </div>
                         <h3>{event.title}</h3>
                         <p>
                           {formatDate(event.date)} · {event.startTime}
@@ -243,6 +301,24 @@ export default function OrganizerDashboard({ user }) {
                         />
                       </div>
                     </div>
+                    {event.owned && (
+                      <div className="organizer-dashboard__event-actions">
+                        <button
+                          type="button"
+                          className="organizer-dashboard__btn"
+                          onClick={() => handleEditEvent(event)}
+                        >
+                          Edit Event
+                        </button>
+                        <button
+                          type="button"
+                          className="organizer-dashboard__btn organizer-dashboard__btn--danger"
+                          onClick={() => handleDeleteEventRequest(event)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </li>
                 );
               })}
@@ -258,6 +334,26 @@ export default function OrganizerDashboard({ user }) {
           )}
         </section>
       </div>
+
+      {pendingDelete && (
+        <div className="organizer-dashboard__modal" role="dialog" aria-modal="true" aria-label="Delete event">
+          <div className="organizer-dashboard__modal-card">
+            <h3>Delete this event?</h3>
+            <p>
+              “{pendingDelete.title}” will be removed from your dashboard. This is a mock action for
+              now, but it demonstrates the upcoming workflow.
+            </p>
+            <div className="organizer-dashboard__modal-actions">
+              <button type="button" onClick={cancelDeleteRequest}>
+                Keep Event
+              </button>
+              <button type="button" className="organizer-dashboard__btn organizer-dashboard__btn--danger" onClick={confirmDeleteEvent}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </OrganizerLayout>
   );
 }

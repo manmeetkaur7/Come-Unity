@@ -234,11 +234,40 @@
   color: #8a4b00;
 }
 
+.organizer-dashboard__status-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.organizer-dashboard__ownership-pill {
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+  background: rgba(90, 52, 198, 0.15);
+  color: #3a218a;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  font-weight: 600;
+}
+
+.organizer-dashboard__ownership-pill--muted {
+  background: rgba(0, 0, 0, 0.06);
+  color: #3a218a;
+}
 .organizer-dashboard__event-meta {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   min-width: 180px;
+}
+
+.organizer-dashboard__event-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
 }
 
 .organizer-dashboard__volunteer-count {
@@ -269,6 +298,78 @@
 .organizer-dashboard__progress-bar {
   height: 100%;
   background: linear-gradient(120deg, #401e9b, #814bf6);
+}
+
+.organizer-dashboard__btn {
+  border: none;
+  border-radius: 999px;
+  padding: 1rem 1.3rem;
+  background: linear-gradient(120deg, #5a34c6, #8f6bff);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(58, 41, 118, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.organizer-dashboard__btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(58, 41, 118, 0.22);
+}
+
+.organizer-dashboard__btn--danger {
+  background: linear-gradient(120deg, #d84343, #f06262);
+  box-shadow: 0 10px 18px rgba(216, 67, 67, 0.2);
+}
+
+.organizer-dashboard__toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  background: rgba(64, 30, 155, 0.08);
+  color: #2c145c;
+}
+
+.organizer-dashboard__toast button {
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.organizer-dashboard__modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 10;
+}
+
+.organizer-dashboard__modal-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+}
+
+.organizer-dashboard__modal-card h3 {
+  margin-top: 0;
+}
+
+.organizer-dashboard__modal-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 .organizer-dashboard__empty {
