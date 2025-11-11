@@ -363,6 +363,11 @@
   font-weight: 800;
   text-transform: uppercase;
   margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 2;
 }
 
 .event-details-label {
@@ -377,6 +382,11 @@
   font-size: 0.95rem;
   line-height: 1.4;
   margin-bottom: 1.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 4;
 }
 
 .event-card__footer {
