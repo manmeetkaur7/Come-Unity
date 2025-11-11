@@ -38,6 +38,7 @@ const mockEvent = {
     total: 30,
   },
   status: "pending", // pending | approved
+  isOwned: true,
 };
 
 const layoutMap = {
@@ -120,6 +121,8 @@ export default function EventDetails({ user }) {
   const [signedUp, setSignedUp] = useState(false);
   const [adminStatus, setAdminStatus] = useState(mockEvent.status);
   const [selectedHours, setSelectedHours] = useState("");
+  const [organizerNotice, setOrganizerNotice] = useState("");
+  const [showOrganizerDeleteConfirm, setShowOrganizerDeleteConfirm] = useState(false);
 
   const durationInfo = useMemo(() => {
     const start = parseTimeToMinutes(event?.startTime);
@@ -166,6 +169,30 @@ export default function EventDetails({ user }) {
     setSignedUp((value) => !value);
   };
 
+  const handleOrganizerEdit = () => {
+    if (!canOrganizerManage) {
+      return;
+    }
+    setOrganizerNotice("Edit mode coming soon — this is a placeholder action for now.");
+  };
+
+  const handleOrganizerDeletePrompt = () => {
+    if (!canOrganizerManage) {
+      return;
+    }
+    setShowOrganizerDeleteConfirm(true);
+  };
+
+  const cancelOrganizerDelete = () => setShowOrganizerDeleteConfirm(false);
+
+  const confirmOrganizerDelete = () => {
+    if (!canOrganizerManage) {
+      return;
+    }
+    setShowOrganizerDeleteConfirm(false);
+    setOrganizerNotice("This event would be deleted once backend support is added.");
+  };
+
   const notFound = !loading && !event;
 
   const metaItems = useMemo(() => {
@@ -209,6 +236,8 @@ export default function EventDetails({ user }) {
       },
     ];
   }, [event]);
+
+  const canOrganizerManage = role === "organizer" && event?.isOwned;
 
   const volunteerActions =
     role === "volunteer" ? (
@@ -358,9 +387,38 @@ export default function EventDetails({ user }) {
                 </p>
               </div>
               {role === "organizer" && (
-                <span className="event-details__organizer-badge">
-                  Organizer view
-                </span>
+                <div className="event-details__organizer-tools">
+                  <span className="event-details__organizer-badge">
+                    Organizer view
+                  </span>
+                  {event?.isOwned ? (
+                    <>
+                      <span className="event-details__ownership-pill">You created this</span>
+                      <div className="event-details__organizer-actions">
+                        <button
+                          type="button"
+                          className="event-details__action-btn"
+                          onClick={handleOrganizerEdit}
+                          disabled={!canOrganizerManage}
+                        >
+                          Edit Event
+                        </button>
+                        <button
+                          type="button"
+                          className="event-details__action-btn event-details__action-btn--danger"
+                          onClick={handleOrganizerDeletePrompt}
+                          disabled={!canOrganizerManage}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <span className="event-details__ownership-pill event-details__ownership-pill--muted">
+                      External event
+                    </span>
+                  )}
+                </div>
               )}
               {role === "admin" && (
                 <span
@@ -370,6 +428,19 @@ export default function EventDetails({ user }) {
                 </span>
               )}
             </header>
+
+            {organizerNotice && canOrganizerManage && (
+              <div className="event-details__notice" role="status">
+                <span>{organizerNotice}</span>
+                <button
+                  type="button"
+                  aria-label="Dismiss organizer notice"
+                  onClick={() => setOrganizerNotice("")}
+                >
+                  ×
+                </button>
+              </div>
+            )}
 
             {event.imageUrl && (
               <section className="event-details__layout">
@@ -421,6 +492,30 @@ export default function EventDetails({ user }) {
           </>
         )}
       </div>
+
+      {showOrganizerDeleteConfirm && canOrganizerManage && (
+        <div className="event-details__modal" role="dialog" aria-modal="true" aria-label="Delete event confirmation">
+          <div className="event-details__modal-card">
+            <h3>Delete event?</h3>
+            <p>
+              This is a preview of the organizer controls. Deleting “{event?.title}” will be wired up
+              when backend support ships.
+            </p>
+            <div className="event-details__modal-actions">
+              <button type="button" onClick={cancelOrganizerDelete}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="event-details__action-btn event-details__action-btn--danger"
+                onClick={confirmOrganizerDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

@@ -1,5 +1,5 @@
 // src/pages/Events/EventsPage.jsx
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import EventCard from "./EventCard";
 import VolunteerLayout from "./layouts/VolunteerLayout";
@@ -132,6 +132,7 @@ const mockEvents = [
     slotsAvailable: 3,
     slotsTotal: 45,
     imageUrl: selfCareImage,
+    owned: true,
   },
   {
     id: 2,
@@ -142,6 +143,7 @@ const mockEvents = [
     slotsAvailable: 13,
     slotsTotal: 25,
     imageUrl: libraryImage,
+    owned: true,
   },
   {
     id: 3,
@@ -152,6 +154,7 @@ const mockEvents = [
     slotsAvailable: 9,
     slotsTotal: 40,
     imageUrl: museumImage,
+    owned: false,
   },
   {
     id: 4,
@@ -209,10 +212,29 @@ export default function EventsPage({ user }) {
   const role = user?.role ?? "volunteer";
   const config = roleConfig[role] ?? roleConfig.volunteer;
   const LayoutComponent = Layouts[role] ?? VolunteerLayout;
+  const isOrganizer = role === "organizer";
 
-  const categories = Array.from(
-    new Set(mockEvents.map((event) => event.category).filter(Boolean))
+  const [events, setEvents] = useState(mockEvents);
+  const [organizerToast, setOrganizerToast] = useState("");
+
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(events.map((event) => event.category).filter(Boolean))
+      ),
+    [events]
   );
+
+  const handleOrganizerEdit = (eventItem) => {
+    setOrganizerToast(`Edit flow prep for “${eventItem.title}”.`);
+  };
+
+  const handleOrganizerDelete = (eventItem) => {
+    setEvents((current) => current.filter((event) => event.id !== eventItem.id));
+    setOrganizerToast(`“${eventItem.title}” has been removed from the feed.`);
+  };
+
+  const dismissOrganizerToast = () => setOrganizerToast("");
 
   return (
     <LayoutComponent
@@ -244,13 +266,54 @@ export default function EventsPage({ user }) {
         <section className="events-section">
           <h2 className="events-section__title">{config.eventsHeading}</h2>
 
+          {isOrganizer && organizerToast && (
+            <div className="events-toast" role="status">
+              <span>{organizerToast}</span>
+              <button type="button" onClick={dismissOrganizerToast} aria-label="Dismiss organizer notification">
+                ×
+              </button>
+            </div>
+          )}
+
           <div className="events-grid">
-            {mockEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                showFavorite={config.showFavorites}
-              />
+            {events.map((event) => (
+              <article key={event.id} className="events-grid__item">
+                <EventCard
+                  event={event}
+                  showFavorite={config.showFavorites}
+                />
+                {isOrganizer && (
+                  <>
+                    <div className="events-card-meta">
+                      {event.owned ? (
+                        <span className="events-card-ownership">Your event</span>
+                      ) : (
+                        <span className="events-card-ownership events-card-ownership--muted">
+                          External event
+                        </span>
+                      )}
+                    </div>
+                    {event.owned && (
+                      <div className="events-card-actions">
+                        <button
+                          type="button"
+                          className="events-card-actions__btn"
+                          onClick={() => handleOrganizerEdit(event)}
+                        >
+                          Edit Event
+                        </button>
+                        <button
+                          type="button"
+                          className="events-card-actions__btn events-card-actions__btn--danger"
+                          onClick={() => handleOrganizerDelete(event)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </article>
             ))}
           </div>
         </section>
