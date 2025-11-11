@@ -12,13 +12,13 @@ import favoriteIcon from "@/assets/Favorite.png";
 import addEventIcon from "@/assets/add-event.png";
 import dashboardIcon from "@/assets/dashboard.png";
 import selfCareImage from "@/assets/self care image 1.png";
-import libraryImage from "@/assets/3 7.png";
-import museumImage from "@/assets/People.png";
-import nutritionImage from "@/assets/Untitled design 1.png";
+import libraryImage from "@/assets/5 6.png";
+import TrickImage from "@/assets/Untitled design 1.png";
+import nutritionImage from "@/assets/6 2.png";
 import wellnessImage from "@/assets/1 3.png";
 import foodBankImage from "@/assets/6 2.png";
-import diversityImage from "@/assets/5 6.png";
-import educationImage from "@/assets/7 1.png";
+import diversityImage from "@/assets/7 1.png";
+import educationImage from "@/assets/5 6.png";
 import "./events.css";
 
 const roleConfig = {
@@ -153,7 +153,7 @@ const mockEvents = [
       "Kids can trick-or-treat at the museum on Halloween morning. Gently used or new book donations are requested.",
     slotsAvailable: 9,
     slotsTotal: 40,
-    imageUrl: museumImage,
+    imageUrl: TrickImage,
     owned: false,
   },
   {
