@@ -155,25 +155,77 @@
 
 .events-filter {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: clamp(200px, 30vw, 280px);
 }
 
-.events-filter select {
-  border: 1px solid var(--border-color);
+.events-filter label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+}
+
+.events-filter__field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
   border-radius: 999px;
-  padding: 0.55rem 1.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.events-filter__field select {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.35rem 0;
+}
+
+.events-filter__field button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  background: linear-gradient(120deg, #1d1c1b, #40352f);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.events-search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: clamp(220px, 40vw, 360px);
+}
+
+.events-search__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+}
+
+.events-search__field input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  padding: 0.55rem 2.5rem 0.55rem 1.1rem;
+  font-size: 0.95rem;
   font-family: inherit;
   background-color: #fff;
-  cursor: pointer;
-}
-
-.events-filter button {
-  border: none;
-  background: none;
-  font-weight: 600;
-  color: var(--accent-color);
-  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
 }
 
 .events-section {
@@ -252,6 +304,28 @@
 
 .events-card-actions__btn--danger {
   background: linear-gradient(120deg, #c0392b, #e35d44);
+}
+
+.events-empty {
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  border-radius: 24px;
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.events-empty__reset {
+  margin-top: 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .events-toast {

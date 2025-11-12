@@ -214,6 +214,8 @@ export default function EventsPage({ user }) {
 
   const [events, setEvents] = useState(mockEvents);
   const [organizerToast, setOrganizerToast] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const categories = useMemo(
     () =>
@@ -222,6 +224,29 @@ export default function EventsPage({ user }) {
       ),
     [events]
   );
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredEvents = useMemo(() => {
+    return events.filter((event) => {
+      const matchesCategory = selectedCategory
+        ? event.category === selectedCategory
+        : true;
+      if (!matchesCategory) {
+        return false;
+      }
+      if (!normalizedQuery) {
+        return true;
+      }
+      const haystack = [event.title, event.category, event.description]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [events, normalizedQuery, selectedCategory]);
+
+  const hasResults = filteredEvents.length > 0;
 
   const handleOrganizerEdit = (eventItem) => {
     setOrganizerToast(`Edit flow prep for “${eventItem.title}”.`);
@@ -233,6 +258,15 @@ export default function EventsPage({ user }) {
   };
 
   const dismissOrganizerToast = () => setOrganizerToast("");
+  const handleSearchChange = (event) => setSearchQuery(event.target.value);
+  const resetSearch = () => {
+    setSearchQuery("");
+    setSelectedCategory("");
+  };
+  const handleCategoryChange = (event) => setSelectedCategory(event.target.value);
+  const handleCategoryApply = () => {
+    // placeholder for future analytics or to match design; filtering happens automatically
+  };
 
   return (
     <LayoutComponent
@@ -248,15 +282,39 @@ export default function EventsPage({ user }) {
 
           <div className="events-toolbar">
             <div className="events-filter">
-              <select aria-label="Select category">
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              <button type="button">Filter</button>
+              <label htmlFor="events-category-input">Category</label>
+              <div className="events-filter__field">
+                <select
+                  id="events-category-input"
+                  aria-label="Select category"
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                >
+                  <option value="">All categories</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" onClick={handleCategoryApply}>
+                  Apply
+                </button>
+              </div>
+            </div>
+            <div className="events-search">
+              <label className="events-search__label" htmlFor="events-search-input">
+                Search
+              </label>
+              <div className="events-search__field">
+                <input
+                  id="events-search-input"
+                  type="search"
+                  placeholder="Search events by title, category, or keywords"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -273,47 +331,61 @@ export default function EventsPage({ user }) {
             </div>
           )}
 
-          <div className="events-grid">
-            {events.map((event) => (
-              <article key={event.id} className="events-grid__item">
-                <EventCard
-                  event={event}
-                  showFavorite={config.showFavorites}
-                />
-                {isOrganizer && (
-                  <>
-                    <div className="events-card-meta">
-                      {event.owned ? (
-                        <span className="events-card-ownership">Your event</span>
-                      ) : (
-                        <span className="events-card-ownership events-card-ownership--muted">
-                          External event
-                        </span>
-                      )}
-                    </div>
-                    {event.owned && (
-                      <div className="events-card-actions">
-                        <button
-                          type="button"
-                          className="events-card-actions__btn"
-                          onClick={() => handleOrganizerEdit(event)}
-                        >
-                          Edit Event
-                        </button>
-                        <button
-                          type="button"
-                          className="events-card-actions__btn events-card-actions__btn--danger"
-                          onClick={() => handleOrganizerDelete(event)}
-                        >
-                          Delete
-                        </button>
+          {hasResults ? (
+            <div className="events-grid">
+              {filteredEvents.map((event) => (
+                <article key={event.id} className="events-grid__item">
+                  <EventCard
+                    event={event}
+                    showFavorite={config.showFavorites}
+                  />
+                  {isOrganizer && (
+                    <>
+                      <div className="events-card-meta">
+                        {event.owned ? (
+                          <span className="events-card-ownership">Your event</span>
+                        ) : (
+                          <span className="events-card-ownership events-card-ownership--muted">
+                            External event
+                          </span>
+                        )}
                       </div>
-                    )}
-                  </>
-                )}
-              </article>
-            ))}
-          </div>
+                      {event.owned && (
+                        <div className="events-card-actions">
+                          <button
+                            type="button"
+                            className="events-card-actions__btn"
+                            onClick={() => handleOrganizerEdit(event)}
+                          >
+                            Edit Event
+                          </button>
+                          <button
+                            type="button"
+                            className="events-card-actions__btn events-card-actions__btn--danger"
+                            onClick={() => handleOrganizerDelete(event)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="events-empty">
+              <h3>No events found</h3>
+              {searchQuery && (
+                <p>
+                  Nothing matches “<strong>{searchQuery}</strong>”. Try a different term or clear your search.
+                </p>
+              )}
+              <button type="button" className="events-empty__reset" onClick={resetSearch}>
+                Clear search
+              </button>
+            </div>
+          )}
         </section>
       </div>
 
