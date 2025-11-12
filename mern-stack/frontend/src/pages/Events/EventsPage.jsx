@@ -125,10 +125,9 @@ const Layouts = {
 const mockEvents = [
   {
     id: 1,
-    title: "The Self-Care Social | Pop-Up Market",
+    title: "Wellness Market",
     category: "Health",
-    description:
-      "It’s more than a market — it’s a movement bringing together wellness, beauty, and community.",
+    description: "Wellness market + community pop-up.",
     slotsAvailable: 3,
     slotsTotal: 45,
     imageUrl: selfCareImage,
@@ -139,7 +138,7 @@ const mockEvents = [
     title: "Wild Things at Central Library",
     category: "Education",
     description:
-      "Several animal ambassadors will be present — expect to see live animals that participants can see up close.",
+      "Live animal ambassadors visit the central library for an interactive storytime, STEM demo, and kid-friendly meet-and-greet that lasts nearly an hour.",
     slotsAvailable: 13,
     slotsTotal: 25,
     imageUrl: libraryImage,
@@ -161,7 +160,7 @@ const mockEvents = [
     title: "Food as Medicine Health Conference",
     category: "Health",
     description:
-      "A full-day conference on integrating plant-based nutrition into health care and the heart of healing.",
+      "Full-day conference on plant-based nutrition and the heart of healing.",
     slotsAvailable: 29,
     slotsTotal: 100,
     imageUrl: nutritionImage,
@@ -171,7 +170,7 @@ const mockEvents = [
     title: "First Responder Mental Health & Wellness Conference",
     category: "Health",
     description:
-      "Focused on mental health for first responders, their families, and wellness professionals with tools and support.",
+      "Mental wellness summit for first responders, spouses, and peer-support teams with hands-on workshops, breakouts, and therapy dogs.",
     slotsAvailable: 32,
     slotsTotal: 100,
     imageUrl: wellnessImage,
@@ -190,8 +189,7 @@ const mockEvents = [
     id: 7,
     title: "Voices in Color: A Celebration of Diversity",
     category: "Cultural",
-    description:
-      "Explore diversity through art, music, and storytelling that celebrates cultures from around the world.",
+    description: "Art, music, and storytelling celebrating global cultures.",
     slotsAvailable: 17,
     slotsTotal: 65,
     imageUrl: diversityImage,
@@ -201,7 +199,7 @@ const mockEvents = [
     title: "2025 Education Conference (CALCIMA)",
     category: "Education",
     description:
-      "A statewide education conference focusing on learning, leadership, and innovation in K-12.",
+      "Statewide education conference focused on learning, leadership, innovation, and collaboration across the K-12 pipeline with policy updates and teacher-led sessions.",
     slotsAvailable: 57,
     slotsTotal: 100,
     imageUrl: educationImage,

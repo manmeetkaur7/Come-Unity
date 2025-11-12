@@ -360,9 +360,11 @@
 
 .event-title {
   font-size: 1.2rem;
+  line-height: 1.3;
   font-weight: 800;
   text-transform: uppercase;
   margin: 0 0 0.75rem;
+  min-height: calc(1.2rem * 1.3 * 2);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -380,13 +382,14 @@
 .event-description {
   color: #4d5057;
   font-size: 0.95rem;
-  line-height: 1.4;
+  line-height: 1.5;
   margin-bottom: 1.25rem;
+  min-height: calc(0.95rem * 1.5 * 3);
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-clamp: 4;
+  line-clamp: 3;
 }
 
 .event-card__footer {
