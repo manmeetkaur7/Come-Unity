@@ -393,7 +393,7 @@ export default function CreateEventPage({ user, onSubmit }) {
     if (typeof onSubmit === "function") {
       onSubmit(payload);
     } else {
-      // Local fallback until backend wiring is ready
+      // TODO: replace fallback logging with POST /api/events (CU-24) using api helper
       console.info("[CreateEventPage] Event submission:", payload);
     }
 

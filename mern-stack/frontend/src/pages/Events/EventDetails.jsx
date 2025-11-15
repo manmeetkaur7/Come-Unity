@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+// TODO: import api helper when wiring CU-30
 import { Navigate } from "react-router-dom";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
@@ -14,6 +15,7 @@ import "./event-details.css";
 import selfCareImage from "@/assets/self care image 1.png";
 import { FaBookmark, FaClock, FaRegBookmark, FaUserCheck } from "react-icons/fa";
 
+// TODO: replace mockEvent with data from GET /api/events/:id (CU-30)
 const mockEvent = {
   id: "evt-101",
   title: "Community Garden Cleanup",
@@ -115,11 +117,11 @@ export default function EventDetails({ user }) {
   const Layout = layoutMap[role] ?? VolunteerLayout;
   const navLinks = navConfig[role] ?? navConfig.volunteer;
 
-  const [event] = useState(mockEvent);
-  const [loading] = useState(false);
+  const [event] = useState(mockEvent); // TODO: load event from API based on id (CU-30)
+  const [loading] = useState(false); // TODO: drive loading state from fetch (CU-31)
   const [saved, setSaved] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
-  const [adminStatus, setAdminStatus] = useState(mockEvent.status);
+  const [adminStatus, setAdminStatus] = useState(mockEvent.status); // TODO: set from fetched event status (CU-30/CU-33)
   const [selectedHours, setSelectedHours] = useState("");
   const [organizerNotice, setOrganizerNotice] = useState("");
   const [showOrganizerDeleteConfirm, setShowOrganizerDeleteConfirm] = useState(false);
