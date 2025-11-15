@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children }) =>
   useAuthUser() ? children : <Navigate to="/" replace />;
 
 export default function App() {
-  const user = useAuthUser() || { role: "volunteer" }; // fallback for dev
+  const user = useAuthUser() || { role: "volunteer" }; // TODO: remove fallback once auth (CU-35/CU-36/CU-66) stores user+token
   return (
     <Box minH="100vh" bg="gray.50">
       <Routes>

@@ -1,6 +1,7 @@
 // src/pages/Events/EventsPage.jsx
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+// TODO: import api helper when wiring CU-22
 import EventCard from "./EventCard";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
@@ -122,6 +123,7 @@ const Layouts = {
 };
 
 // Temporary mock data — replace with API later
+// TODO: replace mockEvents with data from GET /api/events (CU-22)
 const mockEvents = [
   {
     id: 1,
@@ -212,7 +214,7 @@ export default function EventsPage({ user }) {
   const LayoutComponent = Layouts[role] ?? VolunteerLayout;
   const isOrganizer = role === "organizer";
 
-  const [events, setEvents] = useState(mockEvents);
+  const [events, setEvents] = useState(mockEvents); // TODO: load from API instead of mockEvents (CU-22)
   const [organizerToast, setOrganizerToast] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
