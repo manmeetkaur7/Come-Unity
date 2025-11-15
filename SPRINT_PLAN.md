@@ -1,6 +1,48 @@
+**Sprint Overview**
+- We already have the UI for login/signup, events, and dashboards; this sprint’s goal is to connect that UI to a real backend API.
+- By the end, users should be able to register/log in, see events from the database, create new events (organizers), and approve/deny events (admins).
+
+**Setup (everyone)**
+- 1) Pull and install
+  - From the repo root: `git pull` to get the latest `main`.
+  - For this setup step (installing deps and fixing local `.env` files) you can stay on `main` (only editing local files so you don't need a new branch).
+  - Once your local setup is working, create a feature branch when you start on an actual story/subtask.
+  - Backend deps: from `mern-stack/` run `npm install` (this picks up the new backend packages: `cors`, `bcryptjs`, `jsonwebtoken`).
+- 2) Backend env (`mern-stack/.env`)
+  - You already have this file with `MONGO_URI` set. Keep that value, but add the missing lines.
+  - You can also reference the .env.example file to see the new layout.
+  - Open `mern-stack/.env` and ensure it contains:
+    - `MONGO_URI=...` — your MongoDB Atlas URI (already there).
+    - `JWT_SECRET=...` — choose a long random string (this signs/verifies JWTs).
+      - Example command to generate one (from `mern-stack/`):
+        - `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+    - `PORT=5001` — dev backend port.
+    - `CLIENT_ORIGIN=http://localhost:5173` — Vite dev URL.
+- 3) Frontend env (`mern-stack/frontend/.env.local`)
+  - If you don’t have one yet: from `mern-stack/frontend/` run `cp .env.local.example .env.local`.
+  - Open `.env.local` and set:
+    - `VITE_API_URL=http://localhost:5001` (or whatever your backend URL/port is).
+- 4) Run the apps
+  - Backend: from `mern-stack/` run `npm run dev` → you should see Mongo connect and `Server started at http://localhost:5001`. Check `http://localhost:5001/api/health` for `{ "status": "ok" }`.
+  - Frontend: from `mern-stack/frontend/` run `npm run dev` → open `http://localhost:5173`.
+
+**Dependencies (high-level overview)**
+- Backend libraries
+  - `express` — web framework that powers our Node server (handles routes like `/api/events`).
+  - `mongoose` — helper on top of MongoDB so we can define `User` and `Event` models instead of dealing with raw documents.
+  - `mongodb` — low-level MongoDB driver that `mongoose` uses under the hood.
+  - `dotenv` — reads the `.env` file and loads values like `MONGO_URI` and `JWT_SECRET` into `process.env`.
+  - `cors` — lets our backend explicitly allow requests from the frontend URL (otherwise the browser will block them).
+  - `bcryptjs` — hashes passwords before saving them and checks hashes on login (never store plain-text passwords).
+  - `jsonwebtoken` — creates and verifies JWT tokens so the backend can remember “who you are” between requests.
+  - `nodemon` — dev-only helper that restarts the Node server automatically when backend files change.
+- Frontend tools
+  - `vite` — dev server/bundler that runs the React app on `http://localhost:5173` and hot-reloads on changes.
+  - `react`, `react-router-dom`, `@chakra-ui/react`, etc. — already in the frontend; used for UI and routing.
+
 **Stories and Subtasks (Outline)**
 
-(numbers are just for this doc, actual Jira numbers will be different of course)
+(numbers just for this doc, not Jira #s)
 Story 1: Backend MVP
 - 1.1 Auth endpoints + JWT (Aric)
 - 1.2 Events endpoints (list/detail/create) (Aric)
@@ -25,73 +67,30 @@ Story 4: Event Details + Admin Actions
 - 4.3 Verify role-driven UI gates (Selena)
 - 4.4 Admin approve/deny actions (Selena)
 
-**Dependencies (high-level overview)**
-- Backend libraries
-  - `express` — the web framework that powers our Node server (handles routes like `/api/events`).
-  - `mongoose` — helper on top of MongoDB so we can define `User` and `Event` models instead of dealing with raw documents.
-  - `mongodb` — the low-level MongoDB driver that `mongoose` uses under the hood.
-  - `dotenv` — reads the `.env` file and loads values like `MONGO_URI` and `JWT_SECRET` into `process.env`.
-  - `cors` — lets our backend explicitly allow requests from the frontend URL (otherwise the browser will block them).
-  - `bcryptjs` — hashes passwords before saving them and checks hashes on login (never store plain-text passwords).
-  - `jsonwebtoken` — creates and verifies JWT tokens so the backend can remember “who you are” between requests.
-  - `nodemon` — dev-only helper that restarts the Node server automatically when backend files change.
-- Frontend tools
-  - `vite` — dev server/bundler that runs the React app on `http://localhost:5173` and hot-reloads on changes.
-  - `react`, `react-router-dom`, `@chakra-ui/react`, etc. — already in the frontend; used for UI and routing.
-
-**Order Of Work (Tiers)**
-- Tier 0 — Repo/Env setup (parallel)
-  - Everyone: pull latest main; ensure Node 20+; install deps.
-  - Frontend: set `VITE_API_URL=http://localhost:5001`.
-  - Backend: set `.env` with `MONGO_URI`, `JWT_SECRET`, `PORT=5001`, `CLIENT_ORIGIN=http://localhost:5173`.
-
-- Tier 1 — Backend Auth foundation (Aric)
+**Order Of Work (Phases)**
+- Phase 1 — Backend Auth foundation (Aric)
   - Build `POST /api/auth/register` and `POST /api/auth/login` with JWT + bcryptjs; add CORS/JSON middleware and auth/role middleware.
   - Output includes `{ token, user: { id, email, role } }`.
   - Unblocks: Jonathan’s Login/Signup and ProtectedRoute work.
 
-- Tier 2 — Events domain (Aric)
+- Phase 2 — Events domain (Aric)
   - Event model and routes: `GET /api/events` (approved), `GET /api/events/:id`, `POST /api/events` (organizer → pending).
   - Simple query params `?q=&category=` optional; FE can still filter client-side.
   - Unblocks: Manmeet’s Events list and Create submit; Selena’s Details fetch.
 
-- Tier 3 — FE Auth wiring (Jonathan)
+- Phase 3 — FE Auth wiring (Jonathan)
   - Implement `api.js` helper, wire Login/Signup to backend, persist `{token,user}` in localStorage, guard routes.
   - After this, Manmeet/Selena can rely on stored auth for organizer/admin gating.
 
-- Tier 4 — FE Events integrations (Manmeet)
+- Phase 4 — FE Events integrations (Manmeet)
   - Replace mock list with `GET /api/events` and wire Create submit to `POST /api/events` (organizer only).
   - Keep existing client search/filter; no image upload; `imageUrl` can be empty.
 
-- Tier 5 — Admin actions (Selena)
+- Phase 5 — Admin actions (Selena)
   - Fetch event by id and wire admin approve/deny to `POST /api/admin/events/:id/{approve|deny}`; update status chip live.
 
-- Finalization — API spec + seeds (Aric, can be parallel after Tier 2)
+- Finalization — API spec + seeds (Aric, can be parallel after Phase 2)
   - Document request/response shapes; add small seed script for 1 organizer, 1 volunteer, a few events (2 approved, 1 pending).
-
-**Dependencies (what to install/configure)**
-- Prereqs
-  - Node.js 20+ and npm 10+ on all machines
-  - MongoDB Atlas access (each dev has a user; use the provided cluster URI)
-- Backend (from `mern-stack/`)
-  - One-time (already done by Aric, just pull from main after he pushes):
-    - `npm i cors bcryptjs jsonwebtoken`
-    - This updates `mern-stack/package.json` and `package-lock.json` so everyone can just run `npm install`.
-  - Already present: `express mongoose mongodb dotenv nodemon`
-  - Env file: `mern-stack/.env`
-    - See `mern-stack/.env.example` for the latest shape.
-    - `MONGO_URI` — already set in your `.env`; each dev uses their own user/password in the same URI format.
-    - `JWT_SECRET` — add a long random string (per person) so tokens can be signed/verified.
-    - `PORT` — dev default is `5001`.
-    - `CLIENT_ORIGIN` — dev frontend URL, usually `http://localhost:5173`.
-  - Run: `npm run dev` (nodemon starts backend on 5001)
-- Frontend (from `mern-stack/frontend/`)
-  - Env file: `mern-stack/frontend/.env.local`
-    - `VITE_API_URL=http://localhost:5001`
-  - Run: `npm run dev` (Vite on 5173)
-- Optional tools
-  - REST client (Thunder Client/VSCode REST Client/Postman) for testing endpoints
-  - Git workflow: feature branches per story/subtask, PR to `main`
 
 **By Person (numbered subtasks)**
 - Aric
