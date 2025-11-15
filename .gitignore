@@ -18,6 +18,7 @@ yarn-error.log*
 .env.production.local
 .env.test.local
 !.env.example
+!.env.local.example
 
 # --- Dependencies ---
 node_modules/
