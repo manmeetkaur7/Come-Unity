@@ -25,6 +25,20 @@ Story 4: Event Details + Admin Actions
 - 4.3 Verify role-driven UI gates (Selena)
 - 4.4 Admin approve/deny actions (Selena)
 
+**Dependencies (high-level overview)**
+- Backend libraries
+  - `express` — the web framework that powers our Node server (handles routes like `/api/events`).
+  - `mongoose` — helper on top of MongoDB so we can define `User` and `Event` models instead of dealing with raw documents.
+  - `mongodb` — the low-level MongoDB driver that `mongoose` uses under the hood.
+  - `dotenv` — reads the `.env` file and loads values like `MONGO_URI` and `JWT_SECRET` into `process.env`.
+  - `cors` — lets our backend explicitly allow requests from the frontend URL (otherwise the browser will block them).
+  - `bcryptjs` — hashes passwords before saving them and checks hashes on login (never store plain-text passwords).
+  - `jsonwebtoken` — creates and verifies JWT tokens so the backend can remember “who you are” between requests.
+  - `nodemon` — dev-only helper that restarts the Node server automatically when backend files change.
+- Frontend tools
+  - `vite` — dev server/bundler that runs the React app on `http://localhost:5173` and hot-reloads on changes.
+  - `react`, `react-router-dom`, `@chakra-ui/react`, etc. — already in the frontend; used for UI and routing.
+
 **Order Of Work (Tiers)**
 - Tier 0 — Repo/Env setup (parallel)
   - Everyone: pull latest main; ensure Node 20+; install deps.
@@ -60,13 +74,16 @@ Story 4: Event Details + Admin Actions
   - Node.js 20+ and npm 10+ on all machines
   - MongoDB Atlas access (each dev has a user; use the provided cluster URI)
 - Backend (from `mern-stack/`)
-  - Packages to add: `npm i cors bcryptjs jsonwebtoken`
+  - One-time (already done by Aric, just pull from main after he pushes):
+    - `npm i cors bcryptjs jsonwebtoken`
+    - This updates `mern-stack/package.json` and `package-lock.json` so everyone can just run `npm install`.
   - Already present: `express mongoose mongodb dotenv nodemon`
   - Env file: `mern-stack/.env`
-    - `MONGO_URI` — already set in your .env; each dev uses their own user/password in the same URI format
-    - `JWT_SECRET` — add a random string (e.g., a long UUID)
-    - `PORT=5001`
-    - `CLIENT_ORIGIN=http://localhost:5173`
+    - See `mern-stack/.env.example` for the latest shape.
+    - `MONGO_URI` — already set in your `.env`; each dev uses their own user/password in the same URI format.
+    - `JWT_SECRET` — add a long random string (per person) so tokens can be signed/verified.
+    - `PORT` — dev default is `5001`.
+    - `CLIENT_ORIGIN` — dev frontend URL, usually `http://localhost:5173`.
   - Run: `npm run dev` (nodemon starts backend on 5001)
 - Frontend (from `mern-stack/frontend/`)
   - Env file: `mern-stack/frontend/.env.local`
