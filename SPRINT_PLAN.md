@@ -292,7 +292,7 @@ Story CU-13: Event Details + Admin Actions
        - For organizers:
          - Show the “Edit Event” and “Delete” placeholders only if the logged-in organizer owns the event (based on `event.owner` vs `user.id`).
        - For admins:
-         - Show the status chip and admin-only approve/deny controls (see 4.4).
+         - Show the status chip and admin-only approve/deny controls.
        - Verify that if no user is logged in, none of the privileged controls show and the page still looks reasonable.
   CU-33) Admin approve/deny actions
      - Goal: let admins approve or deny an event directly from the Event Details page.
