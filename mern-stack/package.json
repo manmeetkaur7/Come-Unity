@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon backend/server.js"
+    "dev": "nodemon backend/server.js",
+    "seed": "node backend/scripts/seed.js"
   },
   "type": "module",
   "keywords": [],
