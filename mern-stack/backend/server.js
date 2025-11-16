@@ -6,6 +6,7 @@ dotenv.config();
 
 import { connectDB } from "./config/db.js";
 import authRouter from "./routes/auth.js";
+import eventsRouter from "./routes/events.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -26,8 +27,9 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// TODO: wire up /api/events, /api/admin routes here
+// TODO: wire up /api/admin routes here
 app.use("/api/auth", authRouter);
+app.use("/api/events", eventsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
