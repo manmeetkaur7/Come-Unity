@@ -25,6 +25,9 @@
 - 4) Run the apps
   - Backend: from `mern-stack/` run `npm run dev` → you should see Mongo connect and `Server started at http://localhost:5001`. Check `http://localhost:5001/api/health` (check browser while server running) for `{ "status": "ok" }`.
   - Frontend: from `mern-stack/frontend/` run `npm run dev` → open `http://localhost:5173` (should already be working from before).
+- 5) Helpful resources
+  - API spec: `mern-stack/API_SPEC.md` (endpoints, headers, example requests).
+  - Seed script: from `mern-stack/` run `npm run seed` to create test users (admin/organizer/volunteer, password `pw12345`) and 3 events (2 approved, 1 pending). Seeds persist in Mongo until you delete or overwrite them.
 
 **Dependencies (high-level overview)**
 - Backend libraries
