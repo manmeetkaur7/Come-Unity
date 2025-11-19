@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-// TODO: import api helper when wiring CU-30
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -12,36 +11,8 @@ import addEventIcon from "@/assets/add-event.png";
 import dashboardIcon from "@/assets/dashboard.png";
 import locationIcon from "@/assets/location icon 1.png";
 import "./event-details.css";
-import selfCareImage from "@/assets/self care image 1.png";
 import { FaBookmark, FaClock, FaRegBookmark, FaUserCheck } from "react-icons/fa";
-
-// TODO: replace mockEvent with data from GET /api/events/:id (CU-30)
-const mockEvent = {
-  id: "evt-101",
-  title: "Community Garden Cleanup",
-  category: "Volunteer",
-  date: "2025-02-15",
-  startTime: "09:00 AM",
-  endTime: "12:00 PM",
-  location: {
-    name: "Oak Park Community Garden",
-    address: "3415 Martin Luther King Jr Blvd, Sacramento, CA",
-  },
-  description:
-    "Help us prepare the community garden for spring planting. We’ll be pruning, mulching, and refreshing the pollinator beds. Gloves and tools are provided. All ages welcome!",
-  imageUrl: selfCareImage,
-  organizer: {
-    name: "Marina Flores",
-    email: "marina@seedcollective.org",
-    phone: "(916) 555-2100",
-  },
-  slots: {
-    filled: 18,
-    total: 30,
-  },
-  status: "pending", // pending | approved
-  isOwned: true,
-};
+import api from "@/lib/api";
 
 const layoutMap = {
   volunteer: VolunteerLayout,
@@ -116,12 +87,14 @@ export default function EventDetails({ user }) {
   const role = user?.role ?? "volunteer";
   const Layout = layoutMap[role] ?? VolunteerLayout;
   const navLinks = navConfig[role] ?? navConfig.volunteer;
+  const { id } = useParams();
 
-  const [event] = useState(mockEvent); // TODO: load event from API based on id (CU-30)
-  const [loading] = useState(false); // TODO: drive loading state from fetch (CU-31)
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [saved, setSaved] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
-  const [adminStatus, setAdminStatus] = useState(mockEvent.status); // TODO: set from fetched event status (CU-30/CU-33)
+  const [adminStatus, setAdminStatus] = useState("");
   const [selectedHours, setSelectedHours] = useState("");
   const [organizerNotice, setOrganizerNotice] = useState("");
   const [showOrganizerDeleteConfirm, setShowOrganizerDeleteConfirm] = useState(false);
@@ -195,32 +168,43 @@ export default function EventDetails({ user }) {
     setOrganizerNotice("This event would be deleted once backend support is added.");
   };
 
-  const notFound = !loading && !event;
-
   const metaItems = useMemo(() => {
     if (!event) {
       return [];
     }
-    return [
-      {
-        label: "Category",
-        value: event.category,
-      },
-      {
-        label: "Date & Time",
-        value: `${new Date(event.date).toLocaleDateString(undefined, {
+    const eventDate = event.date ? new Date(event.date) : null;
+    const hasValidDate = eventDate && !Number.isNaN(eventDate.valueOf());
+    const formattedDate = hasValidDate
+      ? eventDate.toLocaleDateString(undefined, {
           weekday: "long",
           month: "long",
           day: "numeric",
-        })} · ${event.startTime} – ${event.endTime}`,
+        })
+      : "Date to be determined";
+    const startTime = event.startTime ?? "TBD";
+    const endTime = event.endTime ?? "TBD";
+    const locationName = event.location?.name ?? "Location coming soon";
+    const locationAddress = event.location?.address ?? "Details to be announced";
+    const organizerName = event.organizer?.name ?? "Organizer to be announced";
+    const organizerEmail = event.organizer?.email;
+    const organizerPhone = event.organizer?.phone;
+
+    return [
+      {
+        label: "Category",
+        value: event.category ?? "Event",
+      },
+      {
+        label: "Date & Time",
+        value: `${formattedDate}${event.startTime || event.endTime ? ` · ${startTime} – ${endTime}` : ""}`,
       },
       {
         label: "Location",
         value: (
           <>
-            <strong>{event.location.name}</strong>
+            <strong>{locationName}</strong>
             <br />
-            {event.location.address}
+            {locationAddress}
           </>
         ),
       },
@@ -228,11 +212,19 @@ export default function EventDetails({ user }) {
         label: "Organizer",
         value: (
           <>
-            {event.organizer.name}
-            <br />
-            <a href={`mailto:${event.organizer.email}`}>{event.organizer.email}</a>
-            <br />
-            <a href={`tel:${event.organizer.phone}`}>{event.organizer.phone}</a>
+            {organizerName}
+            {organizerEmail && (
+              <>
+                <br />
+                <a href={`mailto:${organizerEmail}`}>{organizerEmail}</a>
+              </>
+            )}
+            {organizerPhone && (
+              <>
+                <br />
+                <a href={`tel:${organizerPhone}`}>{organizerPhone}</a>
+              </>
+            )}
           </>
         ),
       },
@@ -350,8 +342,55 @@ export default function EventDetails({ user }) {
       </div>
     ) : null;
 
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchEvent = async () => {
+      if (!id) {
+        setEvent(null);
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const response = await api.get(`/api/events/${id}`);
+        if (isCancelled) {
+          return;
+        }
+        setEvent(response.data);
+        setAdminStatus(response.data?.status ?? "");
+        setNotFound(false);
+      } catch (error) {
+        if (isCancelled) {
+          return;
+        }
+        if (error.response?.status === 404) {
+          setNotFound(true);
+          setEvent(null);
+        } else {
+          console.error("Failed to load event details", error);
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchEvent();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id]);
+
   if (role === "admin" && !user) {
     return <Navigate to="/" replace />;
+  }
+
+  if (!id) {
+    return <Navigate to="/events" replace />;
   }
 
   return (
@@ -382,10 +421,10 @@ export default function EventDetails({ user }) {
           <>
             <header className="event-details__header">
               <div>
-                <p className="event-details__eyebrow">{event.category}</p>
-                <h1>{event.title}</h1>
+                <p className="event-details__eyebrow">{event.category ?? "Event"}</p>
+                <h1>{event.title ?? "Untitled event"}</h1>
                 <p className="event-details__slots">
-                  {event.slots.filled}/{event.slots.total} volunteers signed up
+                  {event.slots?.filled ?? 0}/{event.slots?.total ?? 0} volunteers signed up
                 </p>
               </div>
               {role === "organizer" && (
@@ -447,7 +486,7 @@ export default function EventDetails({ user }) {
             {event.imageUrl && (
               <section className="event-details__layout">
                 <div className="event-details__image">
-                  <img src={event.imageUrl} alt={event.title} />
+                  <img src={event.imageUrl} alt={event.title ?? "Event"} />
                 </div>
                 <div className="event-details__meta-grid">
                   {metaItems.map((item) => (
@@ -472,8 +511,8 @@ export default function EventDetails({ user }) {
                 <img src={locationIcon} alt="" />
                 <div>
                   <p>Meeting Point</p>
-                  <strong>{event.location.name}</strong>
-                  <span>{event.location.address}</span>
+                  <strong>{event.location?.name ?? "Location coming soon"}</strong>
+                  <span>{event.location?.address ?? "Details to be announced"}</span>
                 </div>
               </div>
 
@@ -482,7 +521,7 @@ export default function EventDetails({ user }) {
                 <div>
                   <p>Volunteer Count</p>
                   <strong>
-                    {event.slots.filled}/{event.slots.total}
+                    {event.slots?.filled ?? 0}/{event.slots?.total ?? 0}
                   </strong>
                   <span>spots filled</span>
                 </div>
