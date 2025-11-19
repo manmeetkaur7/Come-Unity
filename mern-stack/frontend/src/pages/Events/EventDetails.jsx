@@ -358,14 +358,16 @@ export default function EventDetails({ user }) {
         if (isCancelled) {
           return;
         }
-        setEvent(response.data);
-        setAdminStatus(response.data?.status ?? "");
+        const eventData = response?.event ?? response?.data ?? null;
+        setEvent(eventData);
+        setAdminStatus(eventData?.status ?? "");
         setNotFound(false);
       } catch (error) {
         if (isCancelled) {
           return;
         }
-        if (error.response?.status === 404) {
+        const errorMessage = typeof error?.message === "string" ? error.message.toLowerCase() : "";
+        if (errorMessage.includes("not found")) {
           setNotFound(true);
           setEvent(null);
         } else {
