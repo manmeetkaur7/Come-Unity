@@ -27,6 +27,7 @@ export default function LoginPage() {
 
       // store full object so api.js can read token later
       localStorage.setItem("user", JSON.stringify(data))
+      window.dispatchEvent(new Event("storage")); //fixes login redirect to wrong user page
 
       const role = data.user?.role
 

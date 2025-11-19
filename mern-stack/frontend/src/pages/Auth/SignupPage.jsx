@@ -1,4 +1,6 @@
 import React from "react"
+import { useNavigate } from "react-router-dom"
+import api from "@/lib/api"
 import "./auth-layout.css"
 import "./SignupPage.css"
 import "./styleguide.css"
@@ -7,15 +9,47 @@ import people from "@/assets/People.png"
 
 export default function SignupPage() {
   const [role, setRole] = React.useState("")
+  const [error, setError] = React.useState("")
+  const [success, setSuccess] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState(false)
+  const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setError("")
+    setSuccess("")
+
     if (!role) {
-      alert("Please select whether you are an organizer or a volunteer.")
+      setError("Please select whether you are an organizer or a volunteer.")
       return
     }
-    // TODO: replace with real sign-up logic
-    alert(`Sign-up submitted as ${role}`)
+
+    const form = e.target
+    const firstName = form.firstName.value
+    const lastName = form.lastName.value
+    const email = form.email.value
+    const password = form.password.value
+
+    try {
+      setIsLoading(true)
+
+      await api.post("/api/auth/register", {
+        firstName,
+        lastName,
+        email,
+        password,
+        role,
+      })
+
+      setSuccess("Account created! You can now sign in.")
+      // Small delay so they see the message, then go back to sign-in
+      setTimeout(() => navigate("/"), 800)
+    } catch (err) {
+      console.error(err)
+      setError(err.message || "Signup failed. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -37,27 +71,50 @@ export default function SignupPage() {
         <div className="auth-panel__card">
           <h2 className="auth-panel__title">Create Account</h2>
 
+          {error && <p className="auth-error">{error}</p>}
+          {success && <p className="auth-success">{success}</p>}
+
           <form className="auth-form auth-form--signup" onSubmit={handleSubmit}>
             <div className="auth-form__grid">
               <label className="auth-field">
                 <span>FIRST NAME</span>
-                <input type="text" name="firstName" placeholder="First name" required />
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First name"
+                  required
+                />
               </label>
 
               <label className="auth-field">
                 <span>LAST NAME</span>
-                <input type="text" name="lastName" placeholder="Last name" required />
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last name"
+                  required
+                />
               </label>
             </div>
 
             <label className="auth-field">
               <span>EMAIL</span>
-              <input type="email" name="email" placeholder="Enter your email" required />
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+              />
             </label>
 
             <label className="auth-field">
               <span>PASSWORD</span>
-              <input type="password" name="password" placeholder="Create a password" required />
+              <input
+                type="password"
+                name="password"
+                placeholder="Create a password"
+                required
+              />
             </label>
 
             <fieldset className="auth-role">
@@ -87,8 +144,12 @@ export default function SignupPage() {
               </div>
             </fieldset>
 
-            <button type="submit" className="auth-button" disabled={!role}>
-              Create Account
+            <button
+              type="submit"
+              className="auth-button"
+              disabled={!role || isLoading}
+            >
+              {isLoading ? "Creating account..." : "Create Account"}
             </button>
 
             <p className="auth-note">

@@ -11,30 +11,39 @@ import AdminDashboard from "@/pages/Admin/AdminDashboard";
 import VolunteerDashboard from "@/pages/Volunteer/VolunteerDashboard";
 import OrganizerDashboard from "@/pages/Organizer/OrganizerDashboard";
 
-const useAuthUser = () => {
+const readUserFromStorage = () => {
   const raw = localStorage.getItem("user");
   if (!raw) return null;
 
   try {
-    // stored shape: { token, user }
     const parsed = JSON.parse(raw);
     return parsed.user || null;
-  } catch (err) {
-    console.error("Failed to parse stored user from localStorage:", err);
+  } catch {
     return null;
   }
 };
 
-const ProtectedRoute = ({ children }) =>
-  useAuthUser() ? children : <Navigate to="/" replace />;
+const ProtectedRoute = ({ children }) => {
+  const user = readUserFromStorage();
+  return user ? children : <Navigate to="/" replace />;
+};
 
 export default function App() {
-  const user = useAuthUser();          //|| { role: "volunteer" }; // TODO: remove fallback once auth (CU-35/CU-36/CU-66) stores user+token
+  const [user, setUser] = React.useState(readUserFromStorage());
+
+  // Re-sync user when LoginPage triggers window.storage event
+  React.useEffect(() => {
+    const syncUser = () => setUser(readUserFromStorage());
+    window.addEventListener("storage", syncUser);
+    return () => window.removeEventListener("storage", syncUser);
+  }, []);
+
   return (
     <Box minH="100vh" bg="gray.50">
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+
         <Route
           path="/events"
           element={
@@ -43,6 +52,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/events/create"
           element={
@@ -51,6 +61,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/events/saved"
           element={
@@ -59,6 +70,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/events/:id"
           element={
@@ -67,6 +79,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/dashboard/volunteer"
           element={
@@ -75,6 +88,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/dashboard/organizer"
           element={
@@ -83,6 +97,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/dashboard/admin"
           element={
@@ -91,6 +106,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Box>
