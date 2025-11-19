@@ -11,12 +11,17 @@ async function request(path, { method = "GET", body } = {}) {
   // Add token if stored
   const raw = localStorage.getItem("user");
   if (raw) {
+    let token = null;
     try {
       const parsed = JSON.parse(raw);
-      if (parsed?.token) {
-        headers["Authorization"] = `Bearer ${parsed.token}`;
-      }
-    } catch {}
+      token = parsed?.token || null;
+    } catch {
+      token = null;
+    }
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
   }
 
   const options = { method, headers };
@@ -31,7 +36,9 @@ async function request(path, { method = "GET", body } = {}) {
   let data = null;
   try {
     data = await res.json();
-  } catch {}
+  } catch {
+    data = null;
+  }
 
   if (!res.ok) {
     const message =
