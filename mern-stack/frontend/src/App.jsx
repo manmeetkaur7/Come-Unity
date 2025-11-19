@@ -12,15 +12,24 @@ import VolunteerDashboard from "@/pages/Volunteer/VolunteerDashboard";
 import OrganizerDashboard from "@/pages/Organizer/OrganizerDashboard";
 
 const useAuthUser = () => {
-  const raw = localStorage.getItem("user"); // e.g. {"role":"volunteer"}
-  return raw ? JSON.parse(raw) : null;
+  const raw = localStorage.getItem("user");
+  if (!raw) return null;
+
+  try {
+    // stored shape: { token, user }
+    const parsed = JSON.parse(raw);
+    return parsed.user || null;
+  } catch (err) {
+    console.error("Failed to parse stored user from localStorage:", err);
+    return null;
+  }
 };
 
 const ProtectedRoute = ({ children }) =>
   useAuthUser() ? children : <Navigate to="/" replace />;
 
 export default function App() {
-  const user = useAuthUser() || { role: "volunteer" }; // TODO: remove fallback once auth (CU-35/CU-36/CU-66) stores user+token
+  const user = useAuthUser();          //|| { role: "volunteer" }; // TODO: remove fallback once auth (CU-35/CU-36/CU-66) stores user+token
   return (
     <Box minH="100vh" bg="gray.50">
       <Routes>
