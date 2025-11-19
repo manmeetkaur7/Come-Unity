@@ -1,4 +1,6 @@
 import React from "react"
+import { useNavigate } from "react-router-dom"
+import api from "@/lib/api"
 import "./auth-layout.css"
 import "./LoginPage.css"
 import "./styleguide.css"
@@ -6,10 +8,42 @@ import logoClear from "@/assets/Logo (clear).png"
 import people from "@/assets/People.png"
 
 export default function LoginPage() {
-  const handleSubmit = (e) => {
+  const navigate = useNavigate()
+  const [error, setError] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // TODO: handle real sign-in logic
-    alert("Sign-in clicked")
+    setError("")
+    setIsLoading(true)
+
+    const form = e.target
+    const email = form.email.value
+    const password = form.password.value
+
+    try {
+      const data = await api.post("/api/auth/login", { email, password })
+      // expected shape from backend: { token, user: { id, email, role } }
+
+      // store full object so api.js can read token later
+      localStorage.setItem("user", JSON.stringify(data))
+
+      const role = data.user?.role
+
+      if (role === "admin") {
+        navigate("/dashboard/admin")
+      } else if (role === "organizer") {
+        navigate("/dashboard/organizer")
+      } else {
+        // volunteer or any other role
+        navigate("/dashboard/volunteer")
+      }
+    } catch (err) {
+      console.error(err)
+      setError(err.message || "Invalid email or password. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -26,23 +60,35 @@ export default function LoginPage() {
         <div className="auth-panel__card">
           <h2 className="auth-panel__title">Sign In</h2>
 
+          {error && <p className="auth-error">{error}</p>}
+
           <form className="auth-form" onSubmit={handleSubmit}>
             <label className="auth-field">
               <span>EMAIL</span>
-              <input type="email" placeholder="Enter your email" required />
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+              />
             </label>
 
             <label className="auth-field">
               <span>PASSWORD</span>
-              <input type="password" placeholder="Enter your password" required />
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+              />
             </label>
 
             <a className="auth-link" href="/signup">
               Create an account
             </a>
 
-            <button type="submit" className="auth-button">
-              Sign in
+            <button type="submit" className="auth-button" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign in"}
             </button>
           </form>
         </div>
