@@ -438,6 +438,13 @@
   justify-content: flex-end;
 }
 
+.event-details__inline-error {
+  width: 100%;
+  margin: 0.25rem 0 0;
+  color: #c62828;
+  font-weight: 600;
+}
+
 .event-details__cta {
   border: none;
   border-radius: 999px;
