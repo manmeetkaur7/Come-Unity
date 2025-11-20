@@ -1,7 +1,7 @@
 // src/pages/Events/EventsPage.jsx
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-// TODO: import api helper when wiring CU-22
+import api from "@/lib/api";
 import EventCard from "./EventCard";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
@@ -12,14 +12,6 @@ import calendarIcon from "@/assets/Calender image.png";
 import favoriteIcon from "@/assets/Favorite.png";
 import addEventIcon from "@/assets/add-event.png";
 import dashboardIcon from "@/assets/dashboard.png";
-import selfCareImage from "@/assets/self care image 1.png";
-import libraryImage from "@/assets/5 6.png";
-import TrickImage from "@/assets/Untitled design 1.png";
-import nutritionImage from "@/assets/6 2.png";
-import wellnessImage from "@/assets/1 3.png";
-import foodBankImage from "@/assets/6 2.png";
-import diversityImage from "@/assets/7 1.png";
-import educationImage from "@/assets/5 6.png";
 import "./events.css";
 
 const roleConfig = {
@@ -122,102 +114,85 @@ const Layouts = {
   admin: AdminLayout,
 };
 
-// Temporary mock data — replace with API later
-// TODO: replace mockEvents with data from GET /api/events (CU-22)
-const mockEvents = [
-  {
-    id: 1,
-    title: "Wellness Market",
-    category: "Health",
-    description: "Wellness market + community pop-up.",
-    slotsAvailable: 3,
-    slotsTotal: 45,
-    imageUrl: selfCareImage,
-    owned: true,
-  },
-  {
-    id: 2,
-    title: "Wild Things at Central Library",
-    category: "Education",
-    description:
-      "Live animal ambassadors visit the central library for an interactive storytime, STEM demo, and kid-friendly meet-and-greet that lasts nearly an hour.",
-    slotsAvailable: 13,
-    slotsTotal: 25,
-    imageUrl: libraryImage,
-    owned: true,
-  },
-  {
-    id: 3,
-    title: "Trick or Treat at Sacramento Children's Museum",
-    category: "Family",
-    description:
-      "Kids can trick-or-treat at the museum on Halloween morning. Gently used or new book donations are requested.",
-    slotsAvailable: 9,
-    slotsTotal: 40,
-    imageUrl: TrickImage,
-    owned: false,
-  },
-  {
-    id: 4,
-    title: "Food as Medicine Health Conference",
-    category: "Health",
-    description:
-      "Full-day conference on plant-based nutrition and the heart of healing.",
-    slotsAvailable: 29,
-    slotsTotal: 100,
-    imageUrl: nutritionImage,
-  },
-  {
-    id: 5,
-    title: "First Responder Mental Health & Wellness Conference",
-    category: "Health",
-    description:
-      "Mental wellness summit for first responders, spouses, and peer-support teams with hands-on workshops, breakouts, and therapy dogs.",
-    slotsAvailable: 32,
-    slotsTotal: 100,
-    imageUrl: wellnessImage,
-  },
-  {
-    id: 6,
-    title: "Sacramento Food Bank Volunteer Event",
-    category: "Volunteer",
-    description:
-      "Volunteers help bag fresh produce and sort non-perishable items for distribution throughout the community.",
-    slotsAvailable: 20,
-    slotsTotal: 25,
-    imageUrl: foodBankImage,
-  },
-  {
-    id: 7,
-    title: "Voices in Color: A Celebration of Diversity",
-    category: "Cultural",
-    description: "Art, music, and storytelling celebrating global cultures.",
-    slotsAvailable: 17,
-    slotsTotal: 65,
-    imageUrl: diversityImage,
-  },
-  {
-    id: 8,
-    title: "2025 Education Conference (CALCIMA)",
-    category: "Education",
-    description:
-      "Statewide education conference focused on learning, leadership, innovation, and collaboration across the K-12 pipeline with policy updates and teacher-led sessions.",
-    slotsAvailable: 57,
-    slotsTotal: 100,
-    imageUrl: educationImage,
-  },
-];
+// Format API events so EventCard receives consistent props
+const mapEventsFromApi = (items) => {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items
+    .map((event, index) => {
+      if (!event || typeof event !== "object") {
+        return null;
+      }
+
+      const ownerValue = event.owner ?? event.ownerId ?? null;
+      const ownerId =
+        ownerValue && typeof ownerValue === "object"
+          ? ownerValue.id ?? ownerValue._id ?? null
+          : ownerValue ?? null;
+
+      const available =
+        typeof event.slotsAvailable === "number"
+          ? event.slotsAvailable
+          : typeof event.capacity === "number"
+          ? event.capacity
+          : 0;
+
+      const total =
+        typeof event.slotsTotal === "number"
+          ? event.slotsTotal
+          : typeof event.capacity === "number"
+          ? event.capacity
+          : available;
+
+      return {
+        id: String(event.id ?? event._id ?? `event-${index}`),
+        title: event.title ?? "Untitled Event",
+        category: event.category ?? "General",
+        description: event.description ?? "Details coming soon.",
+        imageUrl: event.imageUrl ?? event.image ?? "",
+        slotsAvailable: available,
+        slotsTotal: total,
+        ownerId: ownerId ? String(ownerId) : null,
+        status: event.status ?? "pending",
+      };
+    })
+    .filter(Boolean);
+};
 
 export default function EventsPage({ user }) {
   const role = user?.role ?? "volunteer";
   const config = roleConfig[role] ?? roleConfig.volunteer;
   const LayoutComponent = Layouts[role] ?? VolunteerLayout;
   const isOrganizer = role === "organizer";
+  const userId = user?.id ?? user?._id ?? "";
 
-  const [events, setEvents] = useState(mockEvents); // TODO: load from API instead of mockEvents (CU-22)
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [organizerToast, setOrganizerToast] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await api.get("/api/events");
+      const normalized = mapEventsFromApi(data?.events);
+      setEvents(normalized);
+    } catch (err) {
+      setError(err.message || "Unable to load events.");
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const categories = useMemo(
     () =>
@@ -251,12 +226,12 @@ export default function EventsPage({ user }) {
   const hasResults = filteredEvents.length > 0;
 
   const handleOrganizerEdit = (eventItem) => {
-    setOrganizerToast(`Edit flow prep for “${eventItem.title}”.`);
+    setOrganizerToast(`Edit flow prep for "${eventItem.title}".`);
   };
 
   const handleOrganizerDelete = (eventItem) => {
     setEvents((current) => current.filter((event) => event.id !== eventItem.id));
-    setOrganizerToast(`“${eventItem.title}” has been removed from the feed.`);
+    setOrganizerToast(`"${eventItem.title}" has been removed from the feed.`);
   };
 
   const dismissOrganizerToast = () => setOrganizerToast("");
@@ -269,6 +244,7 @@ export default function EventsPage({ user }) {
   const handleCategoryApply = () => {
     // placeholder for future analytics or to match design; filtering happens automatically
   };
+  const handleRetry = () => fetchEvents();
 
   return (
     <LayoutComponent
@@ -328,59 +304,72 @@ export default function EventsPage({ user }) {
             <div className="events-toast" role="status">
               <span>{organizerToast}</span>
               <button type="button" onClick={dismissOrganizerToast} aria-label="Dismiss organizer notification">
-                ×
+                A-
               </button>
             </div>
           )}
 
-          {hasResults ? (
+          {loading ? (
+            <div className="events-empty">
+              <h3>Loading events...</h3>
+              <p>Hang tight while we load the latest community opportunities.</p>
+            </div>
+          ) : error ? (
+            <div className="events-empty">
+              <h3>We could not load events</h3>
+              <p>{error}</p>
+              <button type="button" className="events-empty__reset" onClick={handleRetry}>
+                Try again
+              </button>
+            </div>
+          ) : hasResults ? (
             <div className="events-grid">
-              {filteredEvents.map((event) => (
-                <article key={event.id} className="events-grid__item">
-                  <EventCard
-                    event={event}
-                    showFavorite={config.showFavorites}
-                  />
-                  {isOrganizer && (
-                    <>
-                      <div className="events-card-meta">
-                        {event.owned ? (
-                          <span className="events-card-ownership">Your event</span>
-                        ) : (
-                          <span className="events-card-ownership events-card-ownership--muted">
-                            External event
-                          </span>
-                        )}
-                      </div>
-                      {event.owned && (
-                        <div className="events-card-actions">
-                          <button
-                            type="button"
-                            className="events-card-actions__btn"
-                            onClick={() => handleOrganizerEdit(event)}
-                          >
-                            Edit Event
-                          </button>
-                          <button
-                            type="button"
-                            className="events-card-actions__btn events-card-actions__btn--danger"
-                            onClick={() => handleOrganizerDelete(event)}
-                          >
-                            Delete
-                          </button>
+              {filteredEvents.map((event) => {
+                const ownsEvent = Boolean(userId && event.ownerId === userId);
+                return (
+                  <article key={event.id} className="events-grid__item">
+                    <EventCard event={event} showFavorite={config.showFavorites} />
+                    {isOrganizer && (
+                      <>
+                        <div className="events-card-meta">
+                          {ownsEvent ? (
+                            <span className="events-card-ownership">Your event</span>
+                          ) : (
+                            <span className="events-card-ownership events-card-ownership--muted">
+                              External event
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </>
-                  )}
-                </article>
-              ))}
+                        {ownsEvent && (
+                          <div className="events-card-actions">
+                            <button
+                              type="button"
+                              className="events-card-actions__btn"
+                              onClick={() => handleOrganizerEdit(event)}
+                            >
+                              Edit Event
+                            </button>
+                            <button
+                              type="button"
+                              className="events-card-actions__btn events-card-actions__btn--danger"
+                              onClick={() => handleOrganizerDelete(event)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <div className="events-empty">
               <h3>No events found</h3>
               {searchQuery && (
                 <p>
-                  Nothing matches “<strong>{searchQuery}</strong>”. Try a different term or clear your search.
+                  Nothing matches "<strong>{searchQuery}</strong>". Try a different term or clear your search.
                 </p>
               )}
               <button type="button" className="events-empty__reset" onClick={resetSearch}>
