@@ -117,10 +117,8 @@ export default function VolunteerDashboard({ user }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const isVolunteer = user?.role ? user.role === "volunteer" : true;
-  if (!isVolunteer) {
-    return <Navigate to="/events" replace />;
-  }
+  const shouldRedirect =
+    typeof user?.role === "string" && user.role !== "volunteer";
 
   const metrics = useMemo(() => {
     const base = dashboardData.metrics ?? {};
@@ -152,6 +150,10 @@ export default function VolunteerDashboard({ user }) {
 
   const hasUpcoming = dashboardData.upcomingEvents.length > 0;
   const hasPast = dashboardData.pastEvents.length > 0;
+
+  if (shouldRedirect) {
+    return <Navigate to="/events" replace />;
+  }
 
   return (
     <VolunteerLayout

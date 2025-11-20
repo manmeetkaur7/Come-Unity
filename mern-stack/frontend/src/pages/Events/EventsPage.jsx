@@ -1,5 +1,5 @@
 // src/pages/Events/EventsPage.jsx
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 // TODO: import api helper when wiring CU-22
 import EventCard from "./EventCard";

@@ -110,10 +110,7 @@ export default function OrganizerDashboard({ user }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const isOrganizer = user?.role === "organizer";
-  if (user && !isOrganizer) {
-    return <Navigate to="/events" replace />;
-  }
+  const shouldRedirect = Boolean(user) && user.role !== "organizer";
 
   const handleEditEvent = (targetEvent) => {
     setToastMessage(`Edit flow coming soon for “${targetEvent.title}”.`);
@@ -177,6 +174,10 @@ export default function OrganizerDashboard({ user }) {
   ];
 
   const hasEvents = dashboardData.events.length > 0;
+
+  if (shouldRedirect) {
+    return <Navigate to="/events" replace />;
+  }
 
   return (
     <OrganizerLayout
