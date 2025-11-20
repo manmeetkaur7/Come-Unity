@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import VolunteerLayout from "./layouts/VolunteerLayout";
 import OrganizerLayout from "./layouts/OrganizerLayout";
@@ -92,6 +92,7 @@ export default function EventDetails({ user }) {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [adminStatus, setAdminStatus] = useState("");
@@ -148,7 +149,7 @@ export default function EventDetails({ user }) {
     if (!canOrganizerManage) {
       return;
     }
-    setOrganizerNotice("Edit mode coming soon — this is a placeholder action for now.");
+    setOrganizerNotice("Edit mode coming soon - this is a placeholder action for now.");
   };
 
   const handleOrganizerDeletePrompt = () => {
@@ -196,7 +197,9 @@ export default function EventDetails({ user }) {
       },
       {
         label: "Date & Time",
-        value: `${formattedDate}${event.startTime || event.endTime ? ` · ${startTime} – ${endTime}` : ""}`,
+        value: `${formattedDate}${
+          event.startTime || event.endTime ? ` at ${startTime} - ${endTime}` : ""
+        }`,
       },
       {
         label: "Location",
@@ -232,6 +235,94 @@ export default function EventDetails({ user }) {
   }, [event]);
 
   const canOrganizerManage = role === "organizer" && event?.isOwned;
+
+  const fetchEvent = useCallback(
+    async (shouldCancel = () => false) => {
+      if (shouldCancel()) {
+        return;
+      }
+
+      if (!id) {
+        setEvent(null);
+        setNotFound(true);
+        setError("");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError("");
+      setNotFound(false);
+
+      try {
+        const response = await api.get(`/api/events/${id}`);
+        if (shouldCancel()) {
+          return;
+        }
+
+        const eventData = response?.event ?? response?.data ?? null;
+
+        if (!eventData) {
+          setEvent(null);
+          setNotFound(true);
+          return;
+        }
+
+        setEvent(eventData);
+        setAdminStatus(eventData?.status ?? "");
+      } catch (err) {
+        if (shouldCancel()) {
+          return;
+        }
+        const statusCode = err?.response?.status;
+        const errorMessage =
+          typeof err?.message === "string" ? err.message.toLowerCase() : "";
+        const isNotFound = statusCode === 404 || errorMessage.includes("not found");
+
+        if (isNotFound) {
+          setNotFound(true);
+          setEvent(null);
+        } else {
+          console.error("Failed to load event details", err);
+          setError("Unable to load this event. Please try again.");
+          setEvent(null);
+        }
+      } finally {
+        if (!shouldCancel()) {
+          setLoading(false);
+        }
+      }
+    },
+    [id]
+  );
+
+  useEffect(() => {
+    let isCancelled = false;
+    const shouldCancel = () => isCancelled;
+
+    fetchEvent(shouldCancel);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [fetchEvent]);
+
+  const handleRetry = () => {
+    fetchEvent(() => false);
+  };
+
+  if (role === "admin" && !user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!id) {
+    return <Navigate to="/events" replace />;
+  }
+
+  const showLoading = loading;
+  const showError = !loading && !!error;
+  const showNotFound = !loading && notFound && !error;
+  const showEvent = !loading && !error && !notFound && event;
 
   const volunteerActions =
     role === "volunteer" ? (
@@ -281,7 +372,7 @@ export default function EventDetails({ user }) {
                 ))}
               </select>
               <span aria-hidden="true" className="event-details__select-caret">
-                ▾
+                v
               </span>
             </div>
             <small>{volunteerHelperText}</small>
@@ -342,59 +433,6 @@ export default function EventDetails({ user }) {
       </div>
     ) : null;
 
-  useEffect(() => {
-    let isCancelled = false;
-
-    const fetchEvent = async () => {
-      if (!id) {
-        setEvent(null);
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const response = await api.get(`/api/events/${id}`);
-        if (isCancelled) {
-          return;
-        }
-        const eventData = response?.event ?? response?.data ?? null;
-        setEvent(eventData);
-        setAdminStatus(eventData?.status ?? "");
-        setNotFound(false);
-      } catch (error) {
-        if (isCancelled) {
-          return;
-        }
-        const errorMessage = typeof error?.message === "string" ? error.message.toLowerCase() : "";
-        if (errorMessage.includes("not found")) {
-          setNotFound(true);
-          setEvent(null);
-        } else {
-          console.error("Failed to load event details", error);
-        }
-      } finally {
-        if (!isCancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchEvent();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [id]);
-
-  if (role === "admin" && !user) {
-    return <Navigate to="/" replace />;
-  }
-
-  if (!id) {
-    return <Navigate to="/events" replace />;
-  }
-
   return (
     <Layout
       navLinks={navLinks}
@@ -403,13 +441,28 @@ export default function EventDetails({ user }) {
       profileIcon={profileBadge}
     >
       <div className="event-details">
-        {loading && (
+        {showLoading && (
           <div className="event-details__loading">
             <p>Loading event details...</p>
           </div>
         )}
 
-        {notFound && (
+        {showError && (
+          <div className="event-details__empty event-details__empty--error">
+            <h2>Something went wrong</h2>
+            <p>{error}</p>
+            <div className="event-details__button-stack">
+              <button type="button" className="event-details__cta" onClick={handleRetry}>
+                Try again
+              </button>
+              <a className="event-details__ghost" href="/events">
+                Back to Events
+              </a>
+            </div>
+          </div>
+        )}
+
+        {showNotFound && (
           <div className="event-details__empty">
             <h2>Event not found</h2>
             <p>The event you are looking for is no longer available.</p>
@@ -419,7 +472,7 @@ export default function EventDetails({ user }) {
           </div>
         )}
 
-        {!loading && event && (
+        {showEvent && (
           <>
             <header className="event-details__header">
               <div>
@@ -480,7 +533,7 @@ export default function EventDetails({ user }) {
                   aria-label="Dismiss organizer notice"
                   onClick={() => setOrganizerNotice("")}
                 >
-                  ×
+                  Dismiss
                 </button>
               </div>
             )}
@@ -541,7 +594,7 @@ export default function EventDetails({ user }) {
           <div className="event-details__modal-card">
             <h3>Delete event?</h3>
             <p>
-              This is a preview of the organizer controls. Deleting “{event?.title}” will be wired up
+              This is a preview of the organizer controls. Deleting "{event?.title}" will be wired up
               when backend support ships.
             </p>
             <div className="event-details__modal-actions">
