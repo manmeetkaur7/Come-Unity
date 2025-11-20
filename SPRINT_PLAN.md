@@ -197,6 +197,7 @@ Story CU-13: Event Details + Admin Actions
        - `frontend/src/pages/Auth/SignupPage.jsx`
        - `frontend/src/pages/Events/EventsPage.jsx`
        - `frontend/src/pages/Events/EventDetails.jsx`
+     - In `frontend/src/App.jsx`, add a small helper (e.g., `readUserFromStorage` or `useAuthUser`) that reads `localStorage.getItem("user")`, parses it, and returns the real `user` object (or `null`), so every page has one source of truth for auth data.
   CU-35) Wire Login
      - Goal: replace the current “alert” with a real login that calls the backend and stores the user.
      - What to do:
@@ -209,6 +210,7 @@ Story CU-13: Event Details + Admin Actions
          - `"organizer"` → `/dashboard/organizer`
          - `"volunteer"` (or anything else) → `/dashboard/volunteer`
        - On error (e.g., wrong password), show a friendly error message somewhere on the form instead of an alert.
+       - Update the shared `ProtectedRoute` in `frontend/src/App.jsx` to call the helper from CU-34 so only real logged-in users can access protected screens (no more dev fallback user objects).
   CU-36) Wire Signup
      - Goal: make the signup form actually create a user account via the backend.
      - What to do:
@@ -220,17 +222,13 @@ Story CU-13: Event Details + Admin Actions
            - Automatically log them in by calling the login endpoint (optional).
        - Show basic inline error text if the API responds with an error (e.g., email already in use).
        - Keep the existing front-end checks like “role must be selected”.
-  CU-66) Protected routes + useAuthUser
-     - Goal: make sure only logged-in users can see protected pages, and that their role is read from real data.
+  CU-66) Profile menu + logout
+     - Goal: give users a consistent way to sign out from anywhere in the events or dashboard experience.
      - What to do:
-       - Open `frontend/src/App.jsx`.
-       - Update `useAuthUser` so it:
-         - Reads `localStorage.getItem("user")`.
-         - Parses it and returns the `user` object (or `null` if not present).
-       - Update `ProtectedRoute` so it:
-         - Checks `useAuthUser()` and, if there is no user, redirects to `/` (Sign In).
-         - Removes any “dev fallback” user (like `{ role: "volunteer" }`).
-       - Make sure the `App` component passes the `user` object down to pages that need to know the role (events, dashboards, etc.).
+       - Update `frontend/src/pages/Events/EventsNavBar.jsx` so the profile avatar/role badge on the right side becomes a button that opens a small dropdown menu.
+       - In that dropdown, add a “Log out” action that calls a shared `handleLogout` (defined in `App.jsx`) which clears `localStorage.user`, dispatches the storage event, and routes back to `/`.
+       - Pass the logout handler down through the layout components (`VolunteerLayout`, `OrganizerLayout`, `AdminLayout`, etc.) so every page using the events nav can trigger it.
+       - Add lightweight styles in `events.css` so the dropdown matches the existing nav visuals (positioned panel, hover state, etc.).
 
 - Manmeet
   CU-22) Events list → GET API

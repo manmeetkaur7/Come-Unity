@@ -173,6 +173,26 @@
   cursor: not-allowed;
 }
 
+.auth-error,
+.auth-success {
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.auth-error {
+  background: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+}
+
+.auth-success {
+  background: #ecfdf3;
+  border: 1px solid #34d399;
+  color: #065f46;
+}
+
 .auth-note {
   margin: 0;
   text-align: center;

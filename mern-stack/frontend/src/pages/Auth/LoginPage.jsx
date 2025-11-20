@@ -41,7 +41,19 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error(err)
-      setError(err.message || "Invalid email or password. Please try again.")
+      const rawMessage = typeof err?.message === "string" ? err.message : ""
+      const normalized = rawMessage.toLowerCase()
+      let friendly = rawMessage
+
+      if (!friendly) {
+        friendly = "We couldn't sign you in. Please try again."
+      }
+
+      if (normalized.includes("invalid credentials")) {
+        friendly = "The email or password you entered is incorrect. Please try again."
+      }
+
+      setError(friendly)
     } finally {
       setIsLoading(false)
     }
