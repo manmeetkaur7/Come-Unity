@@ -84,9 +84,14 @@ const parseTimeToMinutes = (timeString) => {
 };
 
 export default function EventDetails({ user }) {
-  const role = user?.role ?? "volunteer";
+  const role = user?.role ?? null;
+  const isVolunteer = role === "volunteer";
+  const isOrganizer = role === "organizer";
+  const isAdmin = role === "admin";
+  const userId = user?.id ?? user?._id ?? null;
   const Layout = layoutMap[role] ?? VolunteerLayout;
   const navLinks = navConfig[role] ?? navConfig.volunteer;
+  const roleLabel = role ?? "Guest";
   const { id } = useParams();
 
   const [event, setEvent] = useState(null);
@@ -234,7 +239,18 @@ export default function EventDetails({ user }) {
     ];
   }, [event]);
 
-  const canOrganizerManage = role === "organizer" && event?.isOwned;
+  const eventOwnerId = useMemo(() => {
+    if (!event?.owner) {
+      return null;
+    }
+    if (typeof event.owner === "object") {
+      return event.owner.id ?? event.owner._id ?? `${event.owner}`;
+    }
+    return event.owner;
+  }, [event?.owner]);
+
+  const isOwnedByUser = Boolean(userId && eventOwnerId && String(eventOwnerId) === String(userId));
+  const canOrganizerManage = isOrganizer && isOwnedByUser;
 
   const fetchEvent = useCallback(
     async (shouldCancel = () => false) => {
@@ -311,10 +327,6 @@ export default function EventDetails({ user }) {
     fetchEvent(() => false);
   };
 
-  if (role === "admin" && !user) {
-    return <Navigate to="/" replace />;
-  }
-
   if (!id) {
     return <Navigate to="/events" replace />;
   }
@@ -325,7 +337,7 @@ export default function EventDetails({ user }) {
   const showEvent = !loading && !error && !notFound && event;
 
   const volunteerActions =
-    role === "volunteer" ? (
+    isVolunteer ? (
       <section
         className="event-details__volunteer-panel"
         aria-labelledby="volunteer-actions-heading"
@@ -414,7 +426,7 @@ export default function EventDetails({ user }) {
     ) : null;
 
   const adminActions =
-    role === "admin" && adminStatus === "pending" ? (
+    isAdmin && adminStatus === "pending" ? (
       <div className="event-details__actions event-details__actions--admin">
         <button
           type="button"
@@ -436,7 +448,7 @@ export default function EventDetails({ user }) {
   return (
     <Layout
       navLinks={navLinks}
-      roleLabel={role}
+      roleLabel={roleLabel}
       logoSrc={logoClear}
       profileIcon={profileBadge}
     >
@@ -482,12 +494,12 @@ export default function EventDetails({ user }) {
                   {event.slots?.filled ?? 0}/{event.slots?.total ?? 0} volunteers signed up
                 </p>
               </div>
-              {role === "organizer" && (
+              {isOrganizer && (
                 <div className="event-details__organizer-tools">
                   <span className="event-details__organizer-badge">
                     Organizer view
                   </span>
-                  {event?.isOwned ? (
+                  {isOwnedByUser ? (
                     <>
                       <span className="event-details__ownership-pill">You created this</span>
                       <div className="event-details__organizer-actions">
@@ -516,7 +528,7 @@ export default function EventDetails({ user }) {
                   )}
                 </div>
               )}
-              {role === "admin" && (
+              {isAdmin && (
                 <span
                   className={`event-details__status event-details__status--${adminStatus}`}
                 >
