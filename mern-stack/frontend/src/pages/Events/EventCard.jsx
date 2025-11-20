@@ -1,14 +1,16 @@
 // src/pages/Events/EventCard.jsx
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import "./events.css";
 
 export default function EventCard({
-  event,
+  event = {},
   showFavorite = false,
   onToggleFavorite,
 }) {
   const {
+    id,
     title,
     category,
     imageUrl,
@@ -18,10 +20,16 @@ export default function EventCard({
     isSaved = false,
   } = event;
 
-  const availableText = `${slotsAvailable}/${slotsTotal}`;
+  const eventId = String(id ?? event._id ?? "");
+  const detailsPath = eventId ? `/events/${eventId}` : "/events";
+  const availableValue = Number.isFinite(slotsAvailable) ? slotsAvailable : 0;
+  const totalValue = Number.isFinite(slotsTotal) ? slotsTotal : availableValue;
+  const availableText = `${availableValue}/${totalValue}`;
   const categoryLabel = category ?? "General";
   const categorySlug = categoryLabel.toLowerCase().replace(/\s+/g, "-");
   const [saved, setSaved] = useState(Boolean(isSaved));
+  const safeTitle = title ?? "Event details";
+  const safeDescription = description ?? "More details coming soon.";
 
   useEffect(() => {
     setSaved(Boolean(isSaved));
@@ -31,24 +39,30 @@ export default function EventCard({
     const nextValue = !saved;
     setSaved(nextValue);
     if (onToggleFavorite) {
-      onToggleFavorite(event.id, nextValue);
+      onToggleFavorite(eventId || null, nextValue);
     }
   };
 
   return (
     <article className="event-card">
       <div className="event-card__media" data-category={categorySlug}>
-        {imageUrl ? (
-          <img className="event-image" src={imageUrl} alt={title} />
-        ) : (
-          <div
-            className="event-image event-image--placeholder"
-            aria-hidden="true"
-          />
-        )}
-        <span className={`category-tag category-tag--${categorySlug}`}>
-          {categoryLabel}
-        </span>
+        <Link
+          className="event-card__media-link"
+          to={detailsPath}
+          aria-label={`View details for ${safeTitle}`}
+        >
+          {imageUrl ? (
+            <img className="event-image" src={imageUrl} alt={safeTitle} />
+          ) : (
+            <div
+              className="event-image event-image--placeholder"
+              aria-hidden="true"
+            />
+          )}
+          <span className={`category-tag category-tag--${categorySlug}`}>
+            {categoryLabel}
+          </span>
+        </Link>
         {showFavorite && (
           <button
             type="button"
@@ -68,9 +82,9 @@ export default function EventCard({
       </div>
 
       <div className="event-card__body">
-        <h3 className="event-title">{title}</h3>
+        <h3 className="event-title">{safeTitle}</h3>
         <span className="event-details-label">Details:</span>
-        <p className="event-description">{description}</p>
+        <p className="event-description">{safeDescription}</p>
       </div>
 
       <div className="event-card__footer">
@@ -78,9 +92,9 @@ export default function EventCard({
           <span className="slots-label">Slots Available</span>
           <span className="slots-numbers">{availableText}</span>
         </div>
-        <a className="more-details" href={`/events/evt-101`}>
+        <Link className="more-details" to={detailsPath}>
           More Details
-        </a>
+        </Link>
       </div>
     </article>
   );

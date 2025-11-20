@@ -366,6 +366,15 @@
   overflow: hidden;
 }
 
+.event-card__media-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
 .event-image {
   width: 100%;
   height: 100%;
