@@ -101,6 +101,8 @@ export default function EventDetails({ user }) {
   const [saved, setSaved] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [adminStatus, setAdminStatus] = useState("");
+  const [adminActionError, setAdminActionError] = useState("");
+  const [adminActionLoading, setAdminActionLoading] = useState(false);
   const [selectedHours, setSelectedHours] = useState("");
   const [organizerNotice, setOrganizerNotice] = useState("");
   const [showOrganizerDeleteConfirm, setShowOrganizerDeleteConfirm] = useState(false);
@@ -286,6 +288,7 @@ export default function EventDetails({ user }) {
 
         setEvent(eventData);
         setAdminStatus(eventData?.status ?? "");
+        setAdminActionError("");
       } catch (err) {
         if (shouldCancel()) {
           return;
@@ -325,6 +328,33 @@ export default function EventDetails({ user }) {
 
   const handleRetry = () => {
     fetchEvent(() => false);
+  };
+
+  const handleAdminAction = async (action) => {
+    if (!isAdmin || !id || adminActionLoading) {
+      return;
+    }
+
+    setAdminActionError("");
+    setAdminActionLoading(true);
+
+    try {
+      const response = await api.post(`/api/admin/events/${id}/${action}`);
+      const updatedStatus =
+        response?.event?.status ??
+        response?.data?.event?.status ??
+        response?.data?.status ??
+        (action === "approve" ? "approved" : "denied");
+
+      setAdminStatus(updatedStatus);
+      setEvent((prev) => (prev ? { ...prev, status: updatedStatus } : prev));
+    } catch (err) {
+      console.error(`Failed to ${action} event`, err);
+      const message = typeof err?.message === "string" ? err.message : "Unable to update status.";
+      setAdminActionError(message);
+    } finally {
+      setAdminActionLoading(false);
+    }
   };
 
   if (!id) {
@@ -431,17 +461,24 @@ export default function EventDetails({ user }) {
         <button
           type="button"
           className="event-details__ghost event-details__ghost--danger"
-          onClick={() => setAdminStatus("denied")}
+          onClick={() => handleAdminAction("deny")}
+          disabled={adminActionLoading}
         >
-          Deny
+          {adminActionLoading ? "Working..." : "Deny"}
         </button>
         <button
           type="button"
           className="event-details__cta"
-          onClick={() => setAdminStatus("approved")}
+          onClick={() => handleAdminAction("approve")}
+          disabled={adminActionLoading}
         >
-          Approve
+          {adminActionLoading ? "Working..." : "Approve"}
         </button>
+        {adminActionError && (
+          <p className="event-details__inline-error" role="alert">
+            {adminActionError}
+          </p>
+        )}
       </div>
     ) : null;
 
