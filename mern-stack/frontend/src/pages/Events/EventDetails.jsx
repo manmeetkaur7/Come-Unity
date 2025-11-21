@@ -83,7 +83,7 @@ const parseTimeToMinutes = (timeString) => {
   return hours * 60 + minutes;
 };
 
-export default function EventDetails({ user }) {
+export default function EventDetails({ user, onLogout }) {
   const role = user?.role ?? null;
   const isVolunteer = role === "volunteer";
   const isOrganizer = role === "organizer";
@@ -488,6 +488,7 @@ export default function EventDetails({ user }) {
       roleLabel={roleLabel}
       logoSrc={logoClear}
       profileIcon={profileBadge}
+      onLogout={onLogout}
     >
       <div className="event-details">
         {showLoading && (

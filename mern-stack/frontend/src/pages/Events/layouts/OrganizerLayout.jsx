@@ -7,6 +7,7 @@ export default function OrganizerLayout({
   roleLabel,
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
   return (
     <div className="layout organizer-layout">
@@ -15,6 +16,7 @@ export default function OrganizerLayout({
         roleLabel={roleLabel}
         logoSrc={logoSrc}
         profileIcon={profileIcon}
+        onLogout={onLogout}
       />
       <main className="events-content">{children}</main>
     </div>

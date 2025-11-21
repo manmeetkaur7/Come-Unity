@@ -161,7 +161,7 @@ const mapEventsFromApi = (items) => {
     .filter(Boolean);
 };
 
-export default function EventsPage({ user }) {
+export default function EventsPage({ user, onLogout }) {
   const role = user?.role ?? "volunteer";
   const config = roleConfig[role] ?? roleConfig.volunteer;
   const LayoutComponent = Layouts[role] ?? VolunteerLayout;
@@ -241,9 +241,7 @@ export default function EventsPage({ user }) {
     setSelectedCategory("");
   };
   const handleCategoryChange = (event) => setSelectedCategory(event.target.value);
-  const handleCategoryApply = () => {
-    // placeholder for future analytics or to match design; filtering happens automatically
-  };
+  const handleCategoryApply = () => {};
   const handleRetry = () => fetchEvents();
 
   return (
@@ -252,6 +250,7 @@ export default function EventsPage({ user }) {
       roleLabel={config.roleLabel}
       logoSrc={config.logoSrc}
       profileIcon={config.profileIcon}
+      onLogout={onLogout}
     >
       <div className="events-shell">
         <section className={`events-hero events-hero--${config.variant}`}>

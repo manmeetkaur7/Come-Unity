@@ -80,7 +80,7 @@ const navLinks = [
   },
 ];
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard({ user, onLogout }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(4);
@@ -133,6 +133,7 @@ export default function AdminDashboard({ user }) {
       roleLabel="Admin"
       logoSrc={logoClear}
       profileIcon={profileBadge}
+      onLogout={onLogout}
     >
       <div className="admin-dashboard">
         <header className="admin-dashboard__header">

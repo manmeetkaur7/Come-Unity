@@ -6,6 +6,7 @@ export function OrganizerNavBar({
   roleLabel = "Organizer",
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
   return (
     <EventsNavBar
@@ -14,6 +15,7 @@ export function OrganizerNavBar({
       variant="organizer"
       logoSrc={logoSrc}
       profileIcon={profileIcon}
+      onLogout={onLogout}
     />
   );
 }

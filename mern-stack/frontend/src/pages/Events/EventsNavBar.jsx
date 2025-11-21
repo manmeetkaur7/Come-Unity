@@ -7,7 +7,17 @@ export default function EventsNavBar({
   variant = "volunteer",
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  const handleLogoutClick = () => {
+    setMenuOpen(false);
+    if (onLogout) onLogout();
+  };
+
   return (
     <header className={`events-nav events-nav--${variant}`}>
       <div className="events-nav__left">
@@ -44,14 +54,33 @@ export default function EventsNavBar({
 
       <div className="events-nav__right">
         <div className="events-nav__profile">
-          {profileIcon && (
-            <img
-              className="events-nav__profile-icon"
-              src={profileIcon}
-              alt={`${roleLabel} badge`}
-            />
+          <button
+            type="button"
+            className="events-nav__profile-button"
+            onClick={toggleMenu}
+          >
+            {profileIcon && (
+              <img
+                className="events-nav__profile-icon"
+                src={profileIcon}
+                alt={`${roleLabel} badge`}
+              />
+            )}
+            <span className="events-nav__role">{roleLabel}</span>
+            <span className="events-nav__chevron">▾</span>
+          </button>
+
+          {menuOpen && (
+            <div className="events-nav__menu">
+              <button
+                type="button"
+                className="events-nav__menu-item"
+                onClick={handleLogoutClick}
+              >
+                Log out
+              </button>
+            </div>
           )}
-          <span className="events-nav__role">{roleLabel}</span>
         </div>
       </div>
     </header>

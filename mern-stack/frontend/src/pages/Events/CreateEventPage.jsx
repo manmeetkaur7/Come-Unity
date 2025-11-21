@@ -118,7 +118,7 @@ const defaultFormState = {
   imageFile: null,
 };
 
-export default function CreateEventPage({ user, onSubmit }) {
+export default function CreateEventPage({ user, onSubmit, onLogout }) {
   const [formData, setFormData] = useState(defaultFormState);
   const [imagePreview, setImagePreview] = useState("");
   const [submissionState, setSubmissionState] = useState({
@@ -428,6 +428,7 @@ export default function CreateEventPage({ user, onSubmit }) {
       roleLabel="Organizer"
       logoSrc={logoClear}
       profileIcon={profileBadge}
+      onLogout={onLogout}
     >
       <div className="create-event-page">
         <section className="create-event-card">
