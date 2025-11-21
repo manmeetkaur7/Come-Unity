@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
+import api from "@/lib/api";
 import OrganizerLayout from "./layouts/OrganizerLayout";
 import EventCard from "./EventCard";
 import logoClear from "@/assets/Logo (clear).png";
@@ -326,8 +327,16 @@ export default function CreateEventPage({ user, onSubmit, onLogout }) {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const buildTimeLabel = (hour, minute, period) => {
+    if (!hour || !minute || !period) {
+      return "";
+    }
+    return `${hour}:${minute} ${period}`;
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmissionState({ status: "loading", message: "Saving your event..." });
 
     const trimmedName = formData.name.trim();
     const trimmedDescription = formData.description.trim();
@@ -349,62 +358,94 @@ export default function CreateEventPage({ user, onSubmit, onLogout }) {
       return;
     }
 
-  if (
-    !formData.startHour ||
-    !formData.startMinute ||
-    !formData.startPeriod ||
-    !formData.endHour ||
-    !formData.endMinute ||
-    !formData.endPeriod
-  ) {
-    setSubmissionState({
-      status: "error",
-      message: "Choose both start and end times.",
-    });
-    return;
-  }
-
-  const startMinutes = toMinutes(
-    formData.startHour,
-    formData.startMinute,
-    formData.startPeriod
-  );
-  const endMinutes = toMinutes(
-    formData.endHour,
-    formData.endMinute,
-    formData.endPeriod
-  );
-
-  if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes) {
-    setSubmissionState({
-      status: "error",
-      message: "End time must be after the start time.",
-    });
-    return;
-  }
-
-    const payload = {
-      ...formData,
-      name: trimmedName,
-      description: trimmedDescription,
-      address: trimmedAddress,
-    };
-
-    if (typeof onSubmit === "function") {
-      onSubmit(payload);
-    } else {
-      // TODO: replace fallback logging with POST /api/events (CU-24) using api helper
-      console.info("[CreateEventPage] Event submission:", payload);
+    if (
+      !formData.startHour ||
+      !formData.startMinute ||
+      !formData.startPeriod ||
+      !formData.endHour ||
+      !formData.endMinute ||
+      !formData.endPeriod
+    ) {
+      setSubmissionState({
+        status: "error",
+        message: "Choose both start and end times.",
+      });
+      return;
     }
 
-    setSubmissionState({
-      status: "success",
-      message: "Great work! Your event is queued for publishing.",
-    });
+    const startMinutes = toMinutes(
+      formData.startHour,
+      formData.startMinute,
+      formData.startPeriod
+    );
+    const endMinutes = toMinutes(
+      formData.endHour,
+      formData.endMinute,
+      formData.endPeriod
+    );
+
+    if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes) {
+      setSubmissionState({
+        status: "error",
+        message: "End time must be after the start time.",
+      });
+      return;
+    }
+
+    const startLabel = buildTimeLabel(
+      formData.startHour,
+      formData.startMinute,
+      formData.startPeriod
+    );
+    const endLabel = buildTimeLabel(
+      formData.endHour,
+      formData.endMinute,
+      formData.endPeriod
+    );
+    const volunteersNeeded = Number(formData.volunteersNeeded);
+
+    const payload = {
+      title: trimmedName,
+      description: trimmedDescription,
+      category: formData.category,
+      date: formData.eventDate,
+      startTime: startLabel,
+      endTime: endLabel,
+      address: trimmedAddress,
+      capacity: Number.isFinite(volunteersNeeded) && volunteersNeeded > 0 ? volunteersNeeded : undefined,
+      imageUrl: imagePreview || "",
+    };
+
+    try {
+      if (typeof onSubmit === "function") {
+        await onSubmit(payload);
+      } else {
+        await api.post("/api/events", payload);
+      }
+
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImagePreview("");
+      setFormData({ ...defaultFormState });
+      setCalendarView({ ...defaultCalendarView });
+
+      setSubmissionState({
+        status: "success",
+        message: "Great work! Your event is queued for publishing.",
+      });
+    } catch (err) {
+      console.error("[CreateEventPage] submit failed", err);
+      setSubmissionState({
+        status: "error",
+        message: err?.message || "We couldn't save your event. Try again.",
+      });
+    }
   };
 
   const isSuccess = submissionState.status === "success";
   const isError = submissionState.status === "error";
+  const isSubmitting = submissionState.status === "loading";
   const canGoPrevMonth =
     calendarView.year > minYearOption || (calendarView.year === minYearOption && calendarView.month > 0);
   const canGoNextMonth =
@@ -724,7 +765,11 @@ export default function CreateEventPage({ user, onSubmit, onLogout }) {
               >
                 Clear form
               </button>
-              <button type="submit" className="create-event-actions__publish">
+              <button
+                type="submit"
+                className="create-event-actions__publish"
+                disabled={isSubmitting}
+              >
                 Publish event
               </button>
             </footer>
