@@ -261,12 +261,16 @@ Story CU-13: Event Details + Admin Actions
          - Reset the form to its default state.
        - On error:
          - Show the error message in the same area as the success/error status text.
-  CU-25) Create Event auth check
-     - Goal: only logged-in organizers should be able to create events.
+     - Access control:
+       - The component already guards against non-organizers with a `<Navigate>` redirect; keep that behaviour intact so only organizers can submit.
+  CU-25) Organizer events quick filter
+     - Goal: give organizers an easy way to view only their own events on the Events page.
      - What to do:
-       - Still in `CreateEventPage`, use the `user` prop (or `useAuthUser` from 2.4) to check the role.
-       - If there is no user or the role is not `"organizer"`, immediately redirect to `/events` (e.g., using `<Navigate>` from React Router).
-       - If the user is an organizer, show the form as normal.
+       - Open `frontend/src/pages/Events/EventsPage.jsx`.
+       - Add a simple toggle (e.g., radio buttons or a segmented control) that appears only for organizers and switches between “All events” and “My events”.
+       - When “My events” is selected, filter the already-fetched events array down to those where `event.ownerId === user.id` before applying the existing search/category filters.
+       - Persist the selection in component state so it survives navigation within the page, and fall back to “All events” if the user logs out or changes role.
+       - Make sure the loading, error, empty, and organizer toast states still work correctly with the new filter applied.
 
 - Selena
   CU-30) Event Details → GET by ID
