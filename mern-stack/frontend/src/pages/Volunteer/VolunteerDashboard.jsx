@@ -91,7 +91,7 @@ const mockDashboardPayload = {
   ],
 };
 
-export default function VolunteerDashboard({ user }) {
+export default function VolunteerDashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
     metrics: null,
@@ -161,6 +161,7 @@ export default function VolunteerDashboard({ user }) {
       roleLabel="Volunteer"
       logoSrc={logoClear}
       profileIcon={profileBadge}
+      onLogout={onLogout}
     >
       <div className="volunteer-dashboard">
         <header className="volunteer-dashboard__header">

@@ -61,7 +61,7 @@ const mockSavedEvents = [
   },
 ];
 
-export default function SavedEventsPage({ user }) {
+export default function SavedEventsPage({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
 
@@ -100,6 +100,7 @@ export default function SavedEventsPage({ user }) {
       roleLabel="Volunteer"
       logoSrc={logoClear}
       profileIcon={profileBadge}
+      onLogout={onLogout}
     >
       <div className="saved-events">
         <header className="saved-events__header">

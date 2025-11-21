@@ -6,6 +6,7 @@ export function VolunteerNavBar({
   roleLabel = "Volunteer",
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
   return (
     <EventsNavBar
@@ -14,6 +15,7 @@ export function VolunteerNavBar({
       variant="volunteer"
       logoSrc={logoSrc}
       profileIcon={profileIcon}
+      onLogout={onLogout}
     />
   );
 }

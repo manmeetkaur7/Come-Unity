@@ -86,7 +86,7 @@ const formatDate = (value) => {
   });
 };
 
-export default function OrganizerDashboard({ user }) {
+export default function OrganizerDashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({ metrics: null, events: [] });
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -185,6 +185,7 @@ export default function OrganizerDashboard({ user }) {
       roleLabel="Organizer"
       logoSrc={logoClear}
       profileIcon={profileBadge}
+      onLogout={onLogout}
     >
       <div className="organizer-dashboard">
         <header className="organizer-dashboard__header">

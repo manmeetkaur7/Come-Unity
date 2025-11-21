@@ -6,6 +6,7 @@ export function AdminNavBar({
   roleLabel = "Admin",
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
   return (
     <EventsNavBar
@@ -14,6 +15,7 @@ export function AdminNavBar({
       variant="admin"
       logoSrc={logoSrc}
       profileIcon={profileIcon}
+      onLogout={onLogout}
     />
   );
 }

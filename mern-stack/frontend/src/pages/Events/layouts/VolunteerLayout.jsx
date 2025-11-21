@@ -7,6 +7,7 @@ export default function VolunteerLayout({
   roleLabel,
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
   return (
     <div className="layout volunteer-layout">
@@ -15,6 +16,7 @@ export default function VolunteerLayout({
         roleLabel={roleLabel}
         logoSrc={logoSrc}
         profileIcon={profileIcon}
+        onLogout={onLogout}
       />
       <main className="events-content">{children}</main>
     </div>

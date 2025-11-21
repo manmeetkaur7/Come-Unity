@@ -7,6 +7,7 @@ export default function AdminLayout({
   roleLabel,
   logoSrc,
   profileIcon,
+  onLogout,
 }) {
   return (
     <div className="layout admin-layout">
@@ -15,6 +16,7 @@ export default function AdminLayout({
         roleLabel={roleLabel}
         logoSrc={logoSrc}
         profileIcon={profileIcon}
+        onLogout={onLogout}
       />
       <main className="events-content">{children}</main>
     </div>
