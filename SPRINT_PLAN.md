@@ -263,14 +263,13 @@ Story CU-13: Event Details + Admin Actions
          - Show the error message in the same area as the success/error status text.
      - Access control:
        - The component already guards against non-organizers with a `<Navigate>` redirect; keep that behaviour intact so only organizers can submit.
-  CU-25) Organizer events quick filter
-     - Goal: give organizers an easy way to view only their own events on the Events page.
+  CU-25) Create Event auth guard
+     - Goal: ensure only logged-in organizers can access and submit the Create Event form.
      - What to do:
-       - Open `frontend/src/pages/Events/EventsPage.jsx`.
-       - Add a simple toggle (e.g., radio buttons or a segmented control) that appears only for organizers and switches between “All events” and “My events”.
-       - When “My events” is selected, filter the already-fetched events array down to those where `event.ownerId === user.id` before applying the existing search/category filters.
-       - Persist the selection in component state so it survives navigation within the page, and fall back to “All events” if the user logs out or changes role.
-       - Make sure the loading, error, empty, and organizer toast states still work correctly with the new filter applied.
+       - Update `ProtectedRoute` in `frontend/src/App.jsx` to accept an optional `allowedRoles` array so routes can restrict access by role.
+       - Wrap `/events/create` (and any future organizer-only routes) with `allowedRoles={["organizer"]}` so non-organizers are redirected safely.
+       - In `CreateEventPage.jsx`, redirect unauthenticated users to `/` and non-organizers to `/events` before rendering the form.
+       - Keep the existing form logic and success/error states unchanged once the user passes the gate.
 
 - Selena
   CU-30) Event Details → GET by ID
