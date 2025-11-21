@@ -23,9 +23,19 @@ const readUserFromStorage = () => {
   }
 };
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = readUserFromStorage();
-  return user ? children : <Navigate to="/" replace />;
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (Array.isArray(allowedRoles) && allowedRoles.length > 0) {
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/events" replace />;
+    }
+  }
+
+  return children;
 };
 
 export default function App() {
@@ -65,7 +75,7 @@ export default function App() {
         <Route
           path="/events/create"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["organizer"]}>
               <CreateEventPage user={user} onLogout={handleLogout} />
             </ProtectedRoute>
           }

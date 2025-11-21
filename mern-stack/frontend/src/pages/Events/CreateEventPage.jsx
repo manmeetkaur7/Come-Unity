@@ -130,6 +130,7 @@ export default function CreateEventPage({ user, onSubmit, onLogout }) {
     ...defaultCalendarView,
   }));
 
+  const hasUser = Boolean(user);
   const isOrganizer = user?.role === "organizer";
 
   const navLinks = useMemo(
@@ -208,6 +209,10 @@ export default function CreateEventPage({ user, onSubmit, onLogout }) {
     formData.endPeriod,
     imagePreview,
   ]);
+
+  if (!hasUser) {
+    return <Navigate to="/" replace />;
+  }
 
   if (!isOrganizer) {
     return <Navigate to="/events" replace />;
